@@ -1,15 +1,46 @@
 import { useState } from 'react'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
+import SecurityAnalystPage from './pages/SecurityAnalystPage'
 
 function App() {
-  const [page, setPage] = useState('dashboard') // change to 'login' when wiring auth
+  const [userRole, setUserRole] = useState(null) // null = show login
 
-  if (page === 'login') {
-    return <LoginPage onLogin={() => setPage('dashboard')} />
+  const handleLogin = (role) => setUserRole(role)
+  const handleLogout = () => setUserRole(null)
+
+  if (!userRole) {
+    return <LoginPage onLogin={handleLogin} />
   }
 
-  return <DashboardPage onLogout={() => setPage('login')} />
+  switch (userRole) {
+    case 'it-admin':
+      return <DashboardPage onLogout={handleLogout} />
+    case 'security-analyst':
+      return <SecurityAnalystPage onLogout={handleLogout} />
+    // Remaining roles — pages to be built
+    case 'compliance-officer':
+    case 'systems-auditor':
+    case 'it-technician':
+    default:
+      return (
+        <div style={placeholderStyle}>
+          <h2>Dashboard for <em>{userRole}</em> — coming soon</h2>
+          <button onClick={handleLogout} style={logoutStyle}>Log out</button>
+        </div>
+      )
+  }
+}
+
+const placeholderStyle = {
+  display: 'flex', flexDirection: 'column', alignItems: 'center',
+  justifyContent: 'center', height: '100vh', fontFamily: 'Inter, sans-serif',
+  gap: '16px', color: '#374151',
+}
+
+const logoutStyle = {
+  padding: '10px 24px', background: '#1a237e', color: 'white',
+  border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px',
 }
 
 export default App

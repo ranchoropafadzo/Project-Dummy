@@ -1,0 +1,768 @@
+import { useState } from 'react'
+
+const NAV_ITEMS = [
+  {
+    id: 'events',
+    label: 'SECURITY EVENTS',
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'file-access',
+    label: 'FILE ACCESS ALERTS',
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+      </svg>
+    ),
+  },
+  {
+    id: 'login-monitor',
+    label: 'LOGIN MONITOR',
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <polyline points="10 17 15 12 10 7" />
+        <line x1="15" y1="12" x2="3" y2="12" />
+      </svg>
+    ),
+  },
+  {
+    id: 'threat-intel',
+    label: 'THREAT INTELLIGENCE',
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+  },
+]
+
+const PAGE_HEADERS = {
+  events:        { title: 'Security Analyst',       subtitle: 'Security Events',        link: 'Real-Time Threat Monitoring' },
+  'file-access': { title: 'FILE ACCESS ALERTS', subtitle: 'UNAUTHORISED FILE ACCESS DETECTOR', link: 'CHAIN-OF-CUSTODY LOG' },
+  'login-monitor': { title: 'Login Monitor',         subtitle: 'Authentication Events', link: 'Brute-Force & Anomaly Detection' },
+  'threat-intel':  { title: 'Threat Intelligence',   subtitle: 'Threat Feed',           link: 'CVE & IOC Correlation Engine' },
+}
+
+// Placeholder alert rows (no data)
+const ALERT_PLACEHOLDERS = [1, 2, 3, 4]
+
+export default function SecurityAnalystPage({ onLogout }) {
+  const [activePage, setActivePage] = useState('events')
+  const [darkMode, setDarkMode] = useState(false)
+  const styles = makeStyles(darkMode)
+  const dm = darkMode
+  const header = PAGE_HEADERS[activePage]
+
+  return (
+    <div style={styles.wrapper}>
+      {/* ── Sidebar ── */}
+      <aside style={styles.sidebar}>
+        <div style={styles.sidebarTop}>
+          {/* Brand */}
+          <div style={styles.brand}>
+            <div style={styles.brandIcon}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
+            <div>
+              <div style={styles.brandName}>SecureOps</div>
+              <div style={styles.brandSub}>Security Platform</div>
+            </div>
+          </div>
+
+          {/* Nav */}
+          <nav style={styles.nav}>
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActivePage(item.id)}
+                style={{
+                  ...styles.navItem,
+                  ...(activePage === item.id ? styles.navItemActive : {}),
+                }}
+              >
+                <span style={{ color: activePage === item.id ? (dm ? '#93c5fd' : '#1a237e') : (dm ? '#94a3b8' : '#6b7280') }}>
+                  {item.icon}
+                </span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Profile */}
+        <div style={styles.profile}>
+          <div style={styles.profileInner}>
+            <div style={styles.avatar}>
+              <span style={styles.avatarText}>SA</span>
+            </div>
+            <div>
+              <div style={styles.profileName}>Security Admin</div>
+              <div style={styles.profileRole}>admin@secureops.io</div>
+            </div>
+          </div>
+          {onLogout && (
+            <button onClick={onLogout} style={styles.logoutBtn} title="Log out">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </aside>
+
+      {/* ── Main ── */}
+      <main style={styles.main}>
+        {/* Page Header */}
+        <div style={styles.header}>
+          <div>
+            <h1 style={styles.pageTitle}>{header.title}</h1>
+            <p style={styles.pageSubtitle}>
+              <span style={styles.liveDot} />
+              {header.subtitle} &mdash;{' '}
+              <span style={styles.subtitleLink}>{header.link}</span>
+            </p>
+          </div>
+          <div style={styles.headerRight}>
+            <span style={styles.lastUpdated}>Last updated: —</span>
+            <button
+              onClick={() => setDarkMode(!dm)}
+              style={styles.themeToggle}
+              title={dm ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {dm ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* ── SECURITY EVENTS PAGE ── */}
+        {activePage === 'events' && <>
+          {/* 4 Stat Cards */}
+          <div style={styles.cardGrid4}>
+            <div style={{ ...styles.card, background: dm ? '#2d1a1a' : '#fff5f5', border: `1px solid ${dm ? '#7f1d1d' : '#fecaca'}` }}>
+              <div style={styles.cardHeader}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#fca5a5' : '#9b1c1c' }}>CRITICAL ALERTS</span>
+                <div style={{ ...styles.iconBadge, background: dm ? '#450a0a' : '#fee2e2' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ ...styles.cardValue, color: '#ef4444' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#fca5a5' : '#9b1c1c' }}>Require immediate action</div>
+            </div>
+
+            <div style={{ ...styles.card, background: dm ? '#2d1f0a' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fde68a'}` }}>
+              <div style={styles.cardHeader}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#fcd34d' : '#92400e' }}>BRUTE-FORCE DETECTED</span>
+                <div style={{ ...styles.iconBadge, background: dm ? '#451a03' : '#fef3c7' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ ...styles.cardValue, color: '#f97316' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#fcd34d' : '#92400e' }}>From external IPs</div>
+            </div>
+
+            <div style={{ ...styles.card, background: dm ? '#1e1030' : '#faf5ff', border: `1px solid ${dm ? '#4c1d95' : '#e9d5ff'}` }}>
+              <div style={styles.cardHeader}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#c4b5fd' : '#5b21b6' }}>FILES QUARANTINED</span>
+                <div style={{ ...styles.iconBadge, background: dm ? '#2e1065' : '#f3e8ff' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ ...styles.cardValue, color: '#7c3aed' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#c4b5fd' : '#5b21b6' }}>Awaiting review</div>
+            </div>
+
+            <div style={{ ...styles.card, background: dm ? '#0a1f2d' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#a5f3fc'}` }}>
+              <div style={styles.cardHeader}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#67e8f9' : '#155e75' }}>EVENTS (24H)</span>
+                <div style={{ ...styles.iconBadge, background: dm ? '#082f49' : '#cffafe' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <div style={{ ...styles.cardValue, color: '#06b6d4' }}>—</div>
+                <span style={{ fontSize: '13px', fontWeight: '600', color: '#06b6d4' }}>↑ —%</span>
+              </div>
+              <div style={{ fontSize: '13px', color: dm ? '#67e8f9' : '#155e75' }}>—% above baseline</div>
+            </div>
+          </div>
+
+          {/* Live Security Alerts */}
+          <div style={styles.chartCard}>
+            <div style={styles.alertsHeader}>
+              <div style={styles.alertsTitleRow}>
+                <span style={styles.liveDotPulse} />
+                <span style={styles.alertsTitle}>Live Security Alerts</span>
+              </div>
+              <button style={styles.viewAllBtn}>View All</button>
+            </div>
+
+            <div style={styles.alertList}>
+              {ALERT_PLACEHOLDERS.map((_, i, arr) => (
+                <div
+                  key={i}
+                  style={{
+                    ...styles.alertRow,
+                    borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none',
+                  }}
+                >
+                  <div style={styles.alertLeft}>
+                    <span style={{ ...styles.alertDot, background: i % 2 === 0 ? '#ef4444' : '#f97316' }} />
+                    <div style={styles.alertLeft}>
+                      <div>
+                        <div style={styles.alertTitle}>— — — — — —</div>
+                        <div style={styles.alertSource}>Source: —</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={styles.alertRight}>
+                    <span style={styles.alertTime}>—:—</span>
+                    <span style={i % 2 === 0 ? styles.badgeCritical : styles.badgeHigh}>
+                      {i % 2 === 0 ? 'critical' : 'high'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>}
+
+        {/* ── FILE ACCESS ALERTS PAGE ── */}
+        {activePage === 'file-access' && <>
+          {/* 3 Stat Cards */}
+          <div style={styles.cardGrid3}>
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }}>
+              <span style={{ ...styles.cardLabel, color: dm ? '#64748b' : '#9ca3af' }}>FILES QUARANTINED</span>
+              <div style={{ ...styles.cardValue, color: '#ef4444' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Today</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }}>
+              <span style={{ ...styles.cardLabel, color: dm ? '#64748b' : '#9ca3af' }}>FLAGGED EVENTS</span>
+              <div style={{ ...styles.cardValue, color: '#f97316' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Pending analyst review</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }}>
+              <span style={{ ...styles.cardLabel, color: dm ? '#64748b' : '#9ca3af' }}>CLAMAV SCANS</span>
+              <div style={{ ...styles.cardValue, color: '#16a34a' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Today, — positive</div>
+            </div>
+          </div>
+
+          {/* File Access Events Table */}
+          <div style={styles.chartCard}>
+            <div style={styles.chartHeader}><span style={styles.chartTitle}>FILE ACCESS EVENTS</span></div>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  {['TIME', 'FILE PATH', 'USER', 'ACTION', 'SEVERITY', 'STATUS'].map((col) => (
+                    <th key={col} style={{ ...styles.th, fontWeight: '700', letterSpacing: '0.5px' }}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { action: 'READ',  statusStyle: 'badgeQuarantined', statusLabel: 'quarantined' },
+                  { action: 'READ',  statusStyle: 'badgeFlagged',     statusLabel: 'flagged'     },
+                  { action: 'COPY',  statusStyle: 'badgeFlagged',     statusLabel: 'flagged'     },
+                  { action: 'READ',  statusStyle: 'badgeReviewed',    statusLabel: 'reviewed'    },
+                  { action: 'LIST',  statusStyle: 'badgeAllowed',     statusLabel: 'allowed'     },
+                ].map(({ action, statusStyle, statusLabel }, i) => (
+                  <tr key={i}>
+                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>—:—:—</td>
+                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
+                    <td style={{ ...styles.td, color: dm ? '#94a3b8' : '#6b7280' }}>—</td>
+                    <td style={styles.td}><span style={styles.badgeAction}>{action}</span></td>
+                    <td style={{ ...styles.td, color: dm ? '#94a3b8' : '#6b7280' }}>—</td>
+                    <td style={styles.td}><span style={styles[statusStyle]}>{statusLabel}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>}
+
+        {/* ── LOGIN MONITOR PAGE ── */}
+        {activePage === 'login-monitor' && <>
+          <div style={styles.cardGrid4}>
+            {[
+              { label: 'FAILED LOGINS',       color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'In last hour' },
+              { label: 'ACCOUNTS LOCKED',     color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Pending unlock' },
+              { label: 'SUSPICIOUS SESSIONS', color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Under review' },
+              { label: 'ACTIVE SESSIONS',     color: '#22c55e', tint: dm ? '#0a1f10' : '#f0fdf4', border: dm ? '#14532d' : '#bbf7d0', sub: 'Across all systems' },
+            ].map(({ label, color, tint, border, sub }) => (
+              <div key={label} style={{ ...styles.card, background: tint, border: `1px solid ${border}` }}>
+                <span style={{ ...styles.cardLabel, color }}>{label}</span>
+                <div style={{ ...styles.cardValue, color }}>—</div>
+                <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>{sub}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={styles.chartCard}>
+            <div style={styles.chartHeader}><span style={styles.chartTitle}>LOGIN ATTEMPT LOG</span></div>
+            <table style={styles.table}>
+              <thead>
+                <tr>{['User', 'IP Address', 'Location', 'Time', 'Result'].map((col) => (
+                  <th key={col} style={styles.th}>{col}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i}>
+                    <td style={{ ...styles.td, fontWeight: '600', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
+                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px' }}>—.—.—.—</td>
+                    <td style={styles.td}>—</td>
+                    <td style={styles.td}>—:—</td>
+                    <td style={styles.td}><span style={i === 1 ? styles.badgeCritical : i === 3 ? styles.badgeHigh : styles.badgeNeutral}>{i === 1 ? 'blocked' : i === 3 ? 'suspicious' : '—'}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>}
+
+        {/* ── THREAT INTELLIGENCE PAGE ── */}
+        {activePage === 'threat-intel' && <>
+          <div style={styles.cardGrid4}>
+            {[
+              { label: 'ACTIVE IOCs',       color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'Indicators of compromise' },
+              { label: 'NEW CVEs (7D)',      color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Matching our stack' },
+              { label: 'THREAT FEEDS',      color: '#06b6d4', tint: dm ? '#0a1f2d' : '#ecfeff', border: dm ? '#164e63' : '#a5f3fc', sub: 'Active integrations' },
+              { label: 'BLOCKED IPs',       color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Auto-blocked today' },
+            ].map(({ label, color, tint, border, sub }) => (
+              <div key={label} style={{ ...styles.card, background: tint, border: `1px solid ${border}` }}>
+                <span style={{ ...styles.cardLabel, color }}>{label}</span>
+                <div style={{ ...styles.cardValue, color }}>—</div>
+                <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>{sub}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={styles.chartCard}>
+            <div style={styles.chartHeader}><span style={styles.chartTitle}>THREAT FEED — IOC LIST</span></div>
+            <table style={styles.table}>
+              <thead>
+                <tr>{['Indicator', 'Type', 'Source', 'Confidence', 'Status'].map((col) => (
+                  <th key={col} style={styles.th}>{col}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i}>
+                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
+                    <td style={styles.td}>—</td>
+                    <td style={styles.td}>—</td>
+                    <td style={styles.td}>
+                      <div style={{ ...styles.confBar }}>
+                        <div style={{ ...styles.confFill, width: '0%', background: '#ef4444' }} />
+                      </div>
+                    </td>
+                    <td style={styles.td}><span style={styles.badgeNeutral}>—</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>}
+
+        <div style={{ minHeight: '32px', flexShrink: 0 }} />
+      </main>
+    </div>
+  )
+}
+
+const makeStyles = (dm) => ({
+  wrapper: {
+    display: 'flex',
+    height: '100vh',
+    overflow: 'hidden',
+    fontFamily: "'Inter', 'Segoe UI', sans-serif",
+    background: dm ? '#0f172a' : '#f1f5f9',
+  },
+  sidebar: {
+    width: '240px',
+    minWidth: '240px',
+    height: '100vh',
+    background: dm ? '#1e293b' : 'white',
+    borderRight: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '24px 0 20px',
+    flexShrink: 0,
+    boxSizing: 'border-box',
+  },
+  sidebarTop: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '28px',
+    flex: 1,
+  },
+  brand: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '0 20px',
+  },
+  brandIcon: {
+    width: '42px',
+    height: '42px',
+    background: '#1d4ed8',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  brandName: {
+    fontSize: '16px',
+    fontWeight: '700',
+    color: dm ? '#f1f5f9' : '#111827',
+    lineHeight: '1.2',
+  },
+  brandSub: {
+    fontSize: '11px',
+    color: dm ? '#64748b' : '#9ca3af',
+  },
+  nav: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+    padding: '0 10px',
+  },
+  navItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '10px 12px',
+    borderRadius: '8px',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: '500',
+    color: dm ? '#94a3b8' : '#6b7280',
+    textAlign: 'left',
+    width: '100%',
+    transition: 'background 0.15s',
+  },
+  navItemActive: {
+    background: dm ? '#1e3a5f' : '#eff6ff',
+    color: dm ? '#93c5fd' : '#1a237e',
+    fontWeight: '600',
+  },
+  profile: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '14px 18px',
+    borderTop: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+    flexShrink: 0,
+  },
+  profileInner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  avatar: {
+    width: '38px',
+    height: '38px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #7c3aed, #db2777)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  avatarText: {
+    fontSize: '13px',
+    fontWeight: '700',
+    color: 'white',
+    letterSpacing: '0.5px',
+  },
+  profileName: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: dm ? '#f1f5f9' : '#111827',
+  },
+  profileRole: {
+    fontSize: '11px',
+    color: dm ? '#64748b' : '#9ca3af',
+  },
+  logoutBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: dm ? '#64748b' : '#9ca3af',
+    padding: '6px',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  main: {
+    flex: 1,
+    height: '100vh',
+    padding: '24px 32px 0',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '18px',
+    overflowY: 'auto',
+    background: dm ? '#0f172a' : '#f1f5f9',
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  headerRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  pageTitle: {
+    fontSize: '22px',
+    fontWeight: '700',
+    color: dm ? '#f1f5f9' : '#111827',
+    margin: '0 0 6px 0',
+  },
+  pageSubtitle: {
+    fontSize: '14px',
+    color: dm ? '#94a3b8' : '#6b7280',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  liveDot: {
+    display: 'inline-block',
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    background: '#22c55e',
+    flexShrink: 0,
+    boxShadow: '0 0 6px #22c55e',
+  },
+  subtitleLink: {
+    color: dm ? '#93c5fd' : '#1a237e',
+    fontWeight: '500',
+  },
+  lastUpdated: {
+    fontSize: '13px',
+    color: dm ? '#64748b' : '#9ca3af',
+  },
+  themeToggle: {
+    background: dm ? '#1e293b' : '#f1f5f9',
+    border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+    borderRadius: '8px',
+    cursor: 'pointer',
+    color: dm ? '#f59e0b' : '#6b7280',
+    padding: '6px 10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardGrid3: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '16px',
+  },
+  cardGrid4: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '16px',
+  },
+  card: {
+    borderRadius: '16px',
+    padding: '18px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+  },
+  cardHeader: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  cardLabel: {
+    fontSize: '10px',
+    fontWeight: '700',
+    letterSpacing: '0.7px',
+    textTransform: 'uppercase',
+  },
+  iconBadge: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  cardValue: {
+    fontSize: '32px',
+    fontWeight: '800',
+    lineHeight: '1',
+  },
+  chartCard: {
+    background: dm ? '#1e293b' : 'white',
+    borderRadius: '16px',
+    padding: '20px 24px 16px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+    border: `1px solid ${dm ? '#334155' : '#f3f4f6'}`,
+  },
+  chartHeader: { marginBottom: '16px' },
+  chartTitle: {
+    fontSize: '11px',
+    fontWeight: '700',
+    color: dm ? '#64748b' : '#9ca3af',
+    letterSpacing: '0.8px',
+    textTransform: 'uppercase',
+  },
+  alertsHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '16px',
+  },
+  alertsTitleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  liveDotPulse: {
+    display: 'inline-block',
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    background: '#22c55e',
+    boxShadow: '0 0 8px #22c55e',
+    flexShrink: 0,
+  },
+  alertsTitle: {
+    fontSize: '15px',
+    fontWeight: '700',
+    color: dm ? '#f1f5f9' : '#111827',
+  },
+  viewAllBtn: {
+    background: 'none',
+    border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+    borderRadius: '8px',
+    padding: '6px 16px',
+    fontSize: '13px',
+    fontWeight: '500',
+    color: dm ? '#94a3b8' : '#6b7280',
+    cursor: 'pointer',
+  },
+  alertList: { display: 'flex', flexDirection: 'column' },
+  alertRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '16px 0',
+    gap: '16px',
+  },
+  alertLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    flex: 1,
+    minWidth: 0,
+  },
+  alertDot: {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  alertTitle: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: dm ? '#f1f5f9' : '#111827',
+    marginBottom: '3px',
+  },
+  alertSource: {
+    fontSize: '12px',
+    color: dm ? '#64748b' : '#9ca3af',
+  },
+  alertRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    flexShrink: 0,
+  },
+  alertTime: {
+    fontSize: '13px',
+    color: dm ? '#94a3b8' : '#9ca3af',
+    fontWeight: '500',
+  },
+  table: { width: '100%', borderCollapse: 'collapse' },
+  th: {
+    textAlign: 'left',
+    fontSize: '13px',
+    fontWeight: '500',
+    color: dm ? '#94a3b8' : '#6b7280',
+    padding: '10px 16px',
+    borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+  },
+  td: {
+    padding: '14px 16px',
+    fontSize: '14px',
+    color: dm ? '#94a3b8' : '#6b7280',
+    borderBottom: `1px solid ${dm ? '#1e293b' : '#f3f4f6'}`,
+  },
+  confBar: {
+    height: '6px',
+    background: dm ? '#334155' : '#f3f4f6',
+    borderRadius: '999px',
+    overflow: 'hidden',
+    width: '100px',
+  },
+  confFill: { height: '100%', borderRadius: '999px' },
+  badgeCritical:    { display: 'inline-block', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #fca5a5', color: '#ef4444', background: 'transparent' },
+  badgeHigh:        { display: 'inline-block', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #fcd34d', color: '#d97706', background: 'transparent' },
+  badgeNeutral:     { display: 'inline-block', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: `1px solid ${dm ? '#475569' : '#e5e7eb'}`, color: dm ? '#94a3b8' : '#6b7280', background: 'transparent' },
+  badgeAction:      { display: 'inline-block', padding: '3px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #67e8f9', color: '#0891b2', background: 'transparent' },
+  badgeQuarantined: { display: 'inline-block', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #fca5a5', color: '#ef4444', background: 'transparent' },
+  badgeFlagged:     { display: 'inline-block', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #fcd34d', color: '#d97706', background: 'transparent' },
+  badgeReviewed:    { display: 'inline-block', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #fde68a', color: '#b45309', background: 'transparent' },
+  badgeAllowed:     { display: 'inline-block', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #6ee7b7', color: '#059669', background: 'transparent' },
+})

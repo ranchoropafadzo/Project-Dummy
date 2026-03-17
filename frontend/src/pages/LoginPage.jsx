@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react'
 import logo from '../components/images/cut-logo.jpg'
 
-export default function LoginPage() {
+// Placeholder credentials — replace with real auth when backend is ready
+const CREDENTIALS = {
+  'itadmin@cut.ac.zw':   { role: 'it-admin',          password: 'admin123' },
+  'analyst@cut.ac.zw':   { role: 'security-analyst',   password: 'analyst123' },
+  'compliance@cut.ac.zw':{ role: 'compliance-officer', password: 'comply123' },
+  'auditor@cut.ac.zw':   { role: 'systems-auditor',    password: 'audit123' },
+  'tech@cut.ac.zw':      { role: 'it-technician',      password: 'tech123' },
+}
+
+export default function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -23,7 +33,13 @@ export default function LoginPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // handle login logic here
+    const match = CREDENTIALS[email.toLowerCase()]
+    if (match && match.password === password) {
+      setError('')
+      onLogin(match.role)
+    } else {
+      setError('Invalid email or password.')
+    }
   }
 
   return (
@@ -176,6 +192,9 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {error && (
+              <div style={styles.errorBanner}>{error}</div>
+            )}
             <button type="submit" style={styles.signInBtn}>Sign In</button>
           </form>
 
@@ -473,6 +492,15 @@ const styles = {
     fontSize: '11px',
     fontWeight: '600',
     color: '#374151',
+  },
+  errorBanner: {
+    background: '#fef2f2',
+    border: '1px solid #fecaca',
+    borderRadius: '8px',
+    padding: '10px 14px',
+    fontSize: '13px',
+    color: '#dc2626',
+    textAlign: 'center',
   },
   legalNote: {
     fontSize: '12px',
