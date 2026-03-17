@@ -109,7 +109,7 @@ export default function SecurityAnalystPage({ onLogout }) {
               <span style={styles.avatarText}>SA</span>
             </div>
             <div>
-              <div style={styles.profileName}>Security Admin</div>
+              <div style={styles.profileName}>Security Analyst</div>
               <div style={styles.profileRole}>admin@secureops.io</div>
             </div>
           </div>
