@@ -74,19 +74,19 @@ export default function LoginPage({ onLogin }) {
         {/* Stats Grid */}
         <div style={styles.statsGrid}>
           <div style={styles.statCard}>
-            <div style={{ ...styles.statValue, color: '#ef4444' }}>0</div>
+            <div style={{ ...styles.statValue, color: '#ef4444' }}>—</div>
             <div style={styles.statLabel}>Critical CVEs Active</div>
           </div>
           <div style={styles.statCard}>
-            <div style={{ ...styles.statValue, color: '#3b82f6' }}>0</div>
+            <div style={{ ...styles.statValue, color: '#3b82f6' }}>—</div>
             <div style={styles.statLabel}>Endpoints Monitored</div>
           </div>
           <div style={styles.statCard}>
-            <div style={{ ...styles.statValue, color: '#14b8a6' }}>0%</div>
+            <div style={{ ...styles.statValue, color: '#14b8a6' }}>—</div>
             <div style={styles.statLabel}>POPIA Compliance</div>
           </div>
           <div style={styles.statCard}>
-            <div style={{ ...styles.statValue, color: '#f59e0b' }}>0</div>
+            <div style={{ ...styles.statValue, color: '#f59e0b' }}>—</div>
             <div style={styles.statLabel}>Open Incidents</div>
           </div>
         </div>
@@ -223,47 +223,50 @@ export default function LoginPage({ onLogin }) {
 const styles = {
   wrapper: {
     display: 'flex',
-    minHeight: '100vh',
+    height: '100vh',
+    overflow: 'hidden',
     fontFamily: "'Inter', 'Segoe UI', sans-serif",
   },
 
   // --- Left Panel ---
   leftPanel: {
-    width: '51%',
+    width: '48%',
     background: 'linear-gradient(160deg, #0f1f5c 0%, #1a3a8f 100%)',
-    padding: '48px 56px',
+    padding: '28px 44px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '28px',
+    gap: '16px',
     color: 'white',
+    overflow: 'hidden',
   },
   logoRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '14px',
+    gap: '12px',
   },
   logoIcon: {
-    width: '52px',
-    height: '52px',
+    width: '44px',
+    height: '44px',
     background: 'rgba(255,255,255,0.15)',
-    borderRadius: '14px',
+    borderRadius: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   logoName: {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: '700',
     lineHeight: '1.2',
   },
   logoSub: {
-    fontSize: '13px',
+    fontSize: '12px',
     color: 'rgba(255,255,255,0.7)',
   },
   headline: {
-    fontSize: '38px',
+    fontSize: '28px',
     fontWeight: '800',
-    lineHeight: '1.2',
+    lineHeight: '1.25',
     whiteSpace: 'pre-line',
   },
   headlineWhite: {
@@ -273,31 +276,31 @@ const styles = {
     color: '#4ade80',
   },
   description: {
-    fontSize: '15px',
+    fontSize: '13px',
     color: 'rgba(255,255,255,0.8)',
-    lineHeight: '1.7',
+    lineHeight: '1.6',
     margin: 0,
     maxWidth: '420px',
   },
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '16px',
+    gap: '12px',
   },
   statCard: {
     background: 'rgba(255,255,255,0.08)',
-    borderRadius: '12px',
-    padding: '20px 24px',
+    borderRadius: '10px',
+    padding: '14px 18px',
     border: '1px solid rgba(255,255,255,0.1)',
   },
   statValue: {
-    fontSize: '28px',
+    fontSize: '22px',
     fontWeight: '800',
   },
   statLabel: {
-    fontSize: '13px',
+    fontSize: '12px',
     color: 'rgba(255,255,255,0.7)',
-    marginTop: '4px',
+    marginTop: '3px',
   },
   statusBar: {
     display: 'flex',
@@ -306,13 +309,13 @@ const styles = {
     background: 'rgba(255,255,255,0.08)',
     border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '8px',
-    padding: '10px 16px',
-    fontSize: '13px',
+    padding: '8px 14px',
+    fontSize: '12px',
     color: 'rgba(255,255,255,0.85)',
   },
   statusDot: {
-    width: '8px',
-    height: '8px',
+    width: '7px',
+    height: '7px',
     borderRadius: '50%',
     background: '#4ade80',
     flexShrink: 0,
@@ -327,13 +330,13 @@ const styles = {
     background: 'rgba(255,255,255,0.1)',
     border: '1px solid rgba(255,255,255,0.2)',
     borderRadius: '6px',
-    padding: '4px 12px',
-    fontSize: '12px',
+    padding: '3px 10px',
+    fontSize: '11px',
     color: 'rgba(255,255,255,0.85)',
     fontWeight: '500',
   },
   leftFooter: {
-    fontSize: '12px',
+    fontSize: '11px',
     color: 'rgba(255,255,255,0.45)',
     marginTop: 'auto',
     margin: 0,
@@ -346,41 +349,43 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '40px 32px',
+    padding: '24px 28px',
+    overflow: 'hidden',
   },
   card: {
     background: 'white',
-    borderRadius: '20px',
-    padding: '48px 44px',
+    borderRadius: '18px',
+    padding: '28px 36px',
     width: '100%',
-    maxWidth: '440px',
+    maxWidth: '420px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
   },
   lockIconWrapper: {
-    width: '100px',
-    height: '100px',
+    width: '72px',
+    height: '72px',
     borderRadius: '50%',
     overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '20px',
+    marginBottom: '12px',
     background: 'white',
     border: '2px solid #e5e7eb',
+    flexShrink: 0,
   },
   cardTitle: {
-    fontSize: '26px',
+    fontSize: '22px',
     fontWeight: '700',
     color: '#111827',
-    margin: '0 0 8px 0',
+    margin: '0 0 4px 0',
   },
   cardSubtitle: {
-    fontSize: '14px',
+    fontSize: '13px',
     color: '#6b7280',
-    margin: '0 0 20px 0',
+    margin: '0 0 14px 0',
     textAlign: 'center',
   },
   sessionBanner: {
@@ -390,28 +395,28 @@ const styles = {
     background: '#f0fdf4',
     border: '1px solid #bbf7d0',
     borderRadius: '8px',
-    padding: '10px 14px',
+    padding: '8px 12px',
     width: '100%',
     boxSizing: 'border-box',
-    marginBottom: '24px',
+    marginBottom: '16px',
   },
   sessionText: {
-    fontSize: '13px',
+    fontSize: '12px',
     color: '#374151',
   },
   form: {
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '14px',
   },
   fieldGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
+    gap: '5px',
   },
   label: {
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600',
     color: '#111827',
   },
@@ -421,7 +426,7 @@ const styles = {
     alignItems: 'center',
   },
   forgotLink: {
-    fontSize: '13px',
+    fontSize: '12px',
     color: '#1565c0',
     textDecoration: 'none',
     fontWeight: '500',
@@ -433,15 +438,15 @@ const styles = {
   },
   inputIcon: {
     position: 'absolute',
-    left: '14px',
+    left: '12px',
     pointerEvents: 'none',
   },
   input: {
     width: '100%',
-    padding: '12px 14px 12px 44px',
+    padding: '10px 12px 10px 40px',
     border: '1.5px solid #e5e7eb',
-    borderRadius: '10px',
-    fontSize: '14px',
+    borderRadius: '9px',
+    fontSize: '13px',
     color: '#111827',
     outline: 'none',
     boxSizing: 'border-box',
@@ -449,7 +454,7 @@ const styles = {
   },
   eyeBtn: {
     position: 'absolute',
-    right: '14px',
+    right: '12px',
     background: 'none',
     border: 'none',
     cursor: 'pointer',
@@ -459,23 +464,23 @@ const styles = {
   },
   signInBtn: {
     width: '100%',
-    padding: '14px',
+    padding: '11px',
     background: '#1a237e',
     color: 'white',
     border: 'none',
-    borderRadius: '10px',
-    fontSize: '16px',
+    borderRadius: '9px',
+    fontSize: '15px',
     fontWeight: '700',
     cursor: 'pointer',
-    marginTop: '4px',
+    marginTop: '2px',
     letterSpacing: '0.3px',
   },
   securityRow: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    marginTop: '20px',
-    fontSize: '12px',
+    marginTop: '14px',
+    fontSize: '11px',
     color: '#6b7280',
     flexWrap: 'wrap',
     justifyContent: 'center',
@@ -488,8 +493,8 @@ const styles = {
     background: '#f3f4f6',
     border: '1px solid #e5e7eb',
     borderRadius: '4px',
-    padding: '2px 8px',
-    fontSize: '11px',
+    padding: '2px 7px',
+    fontSize: '10px',
     fontWeight: '600',
     color: '#374151',
   },
@@ -497,16 +502,16 @@ const styles = {
     background: '#fef2f2',
     border: '1px solid #fecaca',
     borderRadius: '8px',
-    padding: '10px 14px',
+    padding: '8px 12px',
     fontSize: '13px',
     color: '#dc2626',
     textAlign: 'center',
   },
   legalNote: {
-    fontSize: '12px',
+    fontSize: '11px',
     color: '#9ca3af',
     textAlign: 'center',
-    marginTop: '12px',
-    lineHeight: '1.6',
+    marginTop: '10px',
+    lineHeight: '1.5',
   },
 }
