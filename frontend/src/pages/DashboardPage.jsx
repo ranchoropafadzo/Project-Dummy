@@ -46,6 +46,7 @@ const NAV_ITEMS = [
 export default function DashboardPage({ onLogout }) {
   const [activePage, setActivePage] = useState('risk')
   const [darkMode, setDarkMode] = useState(false)
+  const [managingRole, setManagingRole] = useState(null)
   const styles = makeStyles(darkMode)
   const dm = darkMode
 
@@ -271,8 +272,43 @@ export default function DashboardPage({ onLogout }) {
           </div>
         </>}
 
+        {/* ── ROLE PROFILE PAGE ── */}
+        {activePage === 'access' && managingRole && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <button onClick={() => setManagingRole(null)} style={styles.backBtn}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back to Access Control
+            </button>
+
+            <div style={styles.chartCard}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: dm ? '#1e3a5f' : '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={dm ? '#93c5fd' : '#1a237e'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 style={{ fontSize: '20px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', margin: '0 0 4px' }}>{managingRole}</h2>
+                  <span style={{ fontSize: '13px', color: dm ? '#64748b' : '#9ca3af' }}>Role Management — Chinhoyi University of Technology</span>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {['Users', 'Permissions', 'MFA Status', 'Last Modified'].map((section) => (
+                  <div key={section} style={{ ...styles.card, minHeight: '100px' }}>
+                    <span style={styles.cardLabel}>{section.toUpperCase()}</span>
+                    <div style={{ fontSize: '24px', fontWeight: '800', color: dm ? '#f1f5f9' : '#111827', lineHeight: '1' }}>—</div>
+                    <div style={{ fontSize: '13px', color: dm ? '#64748b' : '#9ca3af' }}>No data yet</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── ACCESS CONTROL PAGE ── */}
-        {activePage === 'access' && <>
+        {activePage === 'access' && !managingRole && <>
           <div style={styles.cardGrid}>
             <div style={styles.card}>
               <span style={styles.cardLabel}>TOTAL USERS</span>
@@ -319,7 +355,7 @@ export default function DashboardPage({ onLogout }) {
                     <td style={styles.td}>
                       {mfa === 'required' ? <span style={styles.mfaRequired}>Required</span> : <span style={styles.mfaOptional}>Optional</span>}
                     </td>
-                    <td style={styles.td}><span style={styles.manageLink}>Manage &gt;</span></td>
+                    <td style={styles.td}><button onClick={() => setManagingRole(role)} style={styles.manageLink}>Manage &gt;</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -990,6 +1026,23 @@ const makeStyles = (dm) => ({
     fontWeight: '600',
     color: '#0891b2',
     cursor: 'pointer',
+    background: 'none',
+    border: 'none',
+    padding: '0',
+  },
+  backBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    background: 'none',
+    border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+    borderRadius: '8px',
+    padding: '8px 16px',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: dm ? '#94a3b8' : '#374151',
+    cursor: 'pointer',
+    alignSelf: 'flex-start',
   },
   incidentList: {
     display: 'flex',
