@@ -43,9 +43,615 @@ const NAV_ITEMS = [
   },
 ]
 
+function RoleProfileView({ role, onBack, dm, styles }) {
+  const [activeTab, setActiveTab] = useState('users')
+  const [showAddUser, setShowAddUser] = useState(false)
+  const [mfaEnabled, setMfaEnabled] = useState(false)
+  const [pamEnabled, setPamEnabled] = useState(false)
+  const [restrictHours, setRestrictHours] = useState(false)
+  const [geoRestrict, setGeoRestrict] = useState(false)
+  const [concurrentSessions, setConcurrentSessions] = useState(false)
+  const [emailAlertLogin, setEmailAlertLogin] = useState(false)
+  const [alertRoleChange, setAlertRoleChange] = useState(false)
+  const [weeklyReport, setWeeklyReport] = useState(false)
+  const [showEditUser, setShowEditUser] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
+  const [showRemoveUser, setShowRemoveUser] = useState(false)
+  const [removingUser, setRemovingUser] = useState(null)
+  const tabs = ['USERS', 'PERMISSIONS', 'SETTINGS', 'ACTIVITY LOG']
+  const tabIds = ['users', 'permissions', 'settings', 'activity-log']
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <button onClick={onBack} style={styles.backBtn}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to Access Control
+      </button>
+
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <div>
+            <h2 style={{ fontSize: '22px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', margin: '0 0 6px' }}>{role}</h2>
+            <div style={{ display: 'flex', gap: '10px', fontSize: '13px', fontWeight: '500' }}>
+              <span style={{ color: '#16a34a' }}>— active</span>
+              <span style={{ color: dm ? '#64748b' : '#9ca3af' }}>·</span>
+              <span style={{ color: '#ef4444' }}>— suspended</span>
+              <span style={{ color: dm ? '#64748b' : '#9ca3af' }}>·</span>
+              <span style={{ color: '#f97316' }}>— MFA enabled</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={() => setShowAddUser(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#1d4ed8', color: 'white', border: 'none', borderRadius: '10px', padding: '10px 20px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
+            </svg>
+            Add User
+          </button>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'transparent', color: dm ? '#94a3b8' : '#374151', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', padding: '10px 20px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      {/* 4 Stat Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+        {[
+          { label: 'Total Users',  color: '#1d4ed8' },
+          { label: 'Active',       color: '#16a34a' },
+          { label: 'Suspended',    color: '#ef4444' },
+          { label: 'MFA Enabled',  color: '#f97316' },
+        ].map(({ label, color }) => (
+          <div key={label} style={{ background: dm ? '#1e293b' : 'white', borderRadius: '16px', padding: '20px 24px', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}`, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+            <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280', marginBottom: '10px' }}>{label}</div>
+            <div style={{ fontSize: '36px', fontWeight: '800', color, lineHeight: '1' }}>—</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs + content */}
+      <div style={{ background: dm ? '#1e293b' : 'white', borderRadius: '16px', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}`, boxShadow: '0 1px 4px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+        {/* Tab bar */}
+        <div style={{ display: 'flex', borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+          {tabs.map((tab, i) => {
+            const isActive = tabIds[i] === activeTab
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tabIds[i])}
+                style={{
+                  flex: 1,
+                  padding: '16px',
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: isActive ? '2px solid #1d4ed8' : '2px solid transparent',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  letterSpacing: '0.5px',
+                  color: isActive ? '#1d4ed8' : (dm ? '#64748b' : '#9ca3af'),
+                  cursor: 'pointer',
+                }}
+              >
+                {tab}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ── PERMISSIONS TAB ── */}
+        {activeTab === 'permissions' && (
+          <div style={{ padding: '20px 24px' }}>
+            {/* Description */}
+            <p style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280', margin: '0 0 20px', fontFamily: 'monospace' }}>
+              Module-level permissions for{' '}
+              <strong style={{ color: '#0891b2', fontFamily: 'monospace' }}>{role}</strong>.
+              {' '}Contact IT Administrator to request changes.
+            </p>
+
+            {/* Permissions Matrix */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+                  {['Module', 'Read', 'Write', 'Delete', 'Admin'].map((col) => (
+                    <th key={col} style={{ padding: '10px 16px', textAlign: col === 'Module' ? 'left' : 'center', fontSize: '13px', fontWeight: '600', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '0.4px' }}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  'Backup Engine',
+                  'RBAC Service',
+                  'Security Logging',
+                  'File Access Detector',
+                  'Risk Assessment',
+                  'Compliance Manager',
+                ].map((module, i, arr) => (
+                  <tr key={module} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
+                    <td style={{ padding: '18px 16px', fontSize: '14px', fontWeight: '600', color: '#0891b2', fontFamily: 'monospace' }}>{module}</td>
+                    {['read', 'write', 'delete', 'admin'].map((perm) => (
+                      <td key={perm} style={{ padding: '18px 16px', textAlign: 'center' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '6px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, color: dm ? '#64748b' : '#9ca3af', fontSize: '13px' }}>—</span>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Footer warning banner */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', background: dm ? 'rgba(245,158,11,0.08)' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fde68a'}`, borderRadius: '10px', padding: '14px 16px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span style={{ fontSize: '12px', color: dm ? '#fcd34d' : '#92400e', fontFamily: 'monospace', lineHeight: '1.6' }}>
+                Permission changes require IT Administrator approval and are logged to the audit trail per ISO 27001 A.9.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* ── SETTINGS TAB ── */}
+        {activeTab === 'settings' && (
+          <div style={{ padding: '24px' }}>
+            {/* Authentication Policy Card */}
+            <div style={{ background: dm ? '#1e293b' : '#fff', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '12px', overflow: 'hidden' }}>
+              {/* Card Header */}
+              <div style={{ padding: '16px 20px', borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={dm ? '#94a3b8' : '#6b7280'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', letterSpacing: '0.5px', fontFamily: 'monospace' }}>AUTHENTICATION POLICY</span>
+              </div>
+
+              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* Row 1: Require MFA */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827', marginBottom: '4px' }}>Require MFA for all users in this role</div>
+                    <div style={{ fontSize: '12px', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      Enforced by security policy
+                    </div>
+                  </div>
+                  {/* MFA Toggle */}
+                  <div onClick={() => setMfaEnabled(v => !v)} style={{ position: 'relative', width: '44px', height: '24px', flexShrink: 0, cursor: 'pointer' }}>
+                    <div style={{ width: '44px', height: '24px', borderRadius: '12px', background: mfaEnabled ? '#0891b2' : (dm ? '#334155' : '#d1d5db'), transition: 'background 0.2s' }} />
+                    <div style={{ position: 'absolute', top: '3px', left: mfaEnabled ? '23px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
+                  </div>
+                </div>
+
+                <div style={{ borderTop: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }} />
+
+                {/* Row 2: Session timeout */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827', marginBottom: '2px' }}>Session timeout (minutes)</div>
+                    <div style={{ fontSize: '12px', color: dm ? '#64748b' : '#9ca3af' }}>Auto-logout after inactivity</div>
+                  </div>
+                  <input
+                    type="number"
+                    placeholder="—"
+                    style={{ width: '80px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${dm ? '#475569' : '#d1d5db'}`, background: dm ? '#0f172a' : '#f9fafb', color: dm ? '#f1f5f9' : '#111827', fontSize: '14px', textAlign: 'center', outline: 'none', fontFamily: 'monospace' }}
+                  />
+                </div>
+
+                <div style={{ borderTop: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }} />
+
+                {/* Row 3: Max failed login attempts */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827', marginBottom: '2px' }}>Max failed login attempts before lockout</div>
+                    <div style={{ fontSize: '12px', color: dm ? '#64748b' : '#9ca3af' }}>Account locked after N consecutive failures</div>
+                  </div>
+                  <input
+                    type="number"
+                    placeholder="—"
+                    style={{ width: '80px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${dm ? '#475569' : '#d1d5db'}`, background: dm ? '#0f172a' : '#f9fafb', color: dm ? '#f1f5f9' : '#111827', fontSize: '14px', textAlign: 'center', outline: 'none', fontFamily: 'monospace' }}
+                  />
+                </div>
+
+                <div style={{ borderTop: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }} />
+
+                {/* Row 4: PAM sessions */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827', marginBottom: '2px' }}>Privileged Access Management (PAM) sessions</div>
+                    <div style={{ fontSize: '12px', color: dm ? '#64748b' : '#9ca3af' }}>Record and monitor privileged sessions for this role</div>
+                  </div>
+                  {/* PAM Toggle */}
+                  <div onClick={() => setPamEnabled(v => !v)} style={{ position: 'relative', width: '44px', height: '24px', flexShrink: 0, cursor: 'pointer' }}>
+                    <div style={{ width: '44px', height: '24px', borderRadius: '12px', background: pamEnabled ? '#0891b2' : (dm ? '#334155' : '#d1d5db'), transition: 'background 0.2s' }} />
+                    <div style={{ position: 'absolute', top: '3px', left: pamEnabled ? '23px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* ACCESS SCOPE Card */}
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '1.5px', marginBottom: '10px', fontFamily: 'monospace' }}>ACCESS SCOPE</div>
+              <div style={{ background: dm ? '#1e293b' : '#fff', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '12px', padding: '4px 0' }}>
+                {[
+                  { label: 'Restrict access to working hours (08:00–17:00 CAT)', val: restrictHours, set: setRestrictHours },
+                  { label: 'Geo-restriction (ZW only)', val: geoRestrict, set: setGeoRestrict },
+                  { label: 'Allow concurrent sessions', val: concurrentSessions, set: setConcurrentSessions },
+                ].map(({ label, val, set }, i, arr) => (
+                  <div key={label}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '500', color: dm ? '#f1f5f9' : '#111827', fontFamily: 'monospace' }}>{label}</span>
+                      <div onClick={() => set(v => !v)} style={{ position: 'relative', width: '44px', height: '24px', flexShrink: 0, cursor: 'pointer' }}>
+                        <div style={{ width: '44px', height: '24px', borderRadius: '12px', background: val ? '#0891b2' : (dm ? '#334155' : '#d1d5db'), transition: 'background 0.2s' }} />
+                        <div style={{ position: 'absolute', top: '3px', left: val ? '23px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
+                      </div>
+                    </div>
+                    {i < arr.length - 1 && <div style={{ borderTop: `1px solid ${dm ? '#334155' : '#f3f4f6'}`, margin: '0 20px' }} />}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* NOTIFICATION PREFERENCES Card */}
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '1.5px', marginBottom: '10px', fontFamily: 'monospace' }}>NOTIFICATION PREFERENCES</div>
+              <div style={{ background: dm ? '#1e293b' : '#fff', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '12px', padding: '4px 0' }}>
+                {[
+                  { label: 'Email alert on new login', val: emailAlertLogin, set: setEmailAlertLogin },
+                  { label: 'Alert on role assignment change', val: alertRoleChange, set: setAlertRoleChange },
+                  { label: 'Weekly access report', val: weeklyReport, set: setWeeklyReport },
+                ].map(({ label, val, set }, i, arr) => (
+                  <div key={label}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '500', color: dm ? '#f1f5f9' : '#111827', fontFamily: 'monospace' }}>{label}</span>
+                      <div onClick={() => set(v => !v)} style={{ position: 'relative', width: '44px', height: '24px', flexShrink: 0, cursor: 'pointer' }}>
+                        <div style={{ width: '44px', height: '24px', borderRadius: '12px', background: val ? '#0891b2' : (dm ? '#334155' : '#d1d5db'), transition: 'background 0.2s' }} />
+                        <div style={{ position: 'absolute', top: '3px', left: val ? '23px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
+                      </div>
+                    </div>
+                    {i < arr.length - 1 && <div style={{ borderTop: `1px solid ${dm ? '#334155' : '#f3f4f6'}`, margin: '0 20px' }} />}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SAVE SETTINGS Button */}
+            <div style={{ marginTop: '24px' }}>
+              <button style={{ padding: '12px 28px', background: 'transparent', color: '#0891b2', border: '2px solid #0891b2', borderRadius: '8px', fontSize: '13px', fontWeight: '700', letterSpacing: '1px', fontFamily: 'monospace', cursor: 'pointer' }}>
+                SAVE SETTINGS
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── ACTIVITY LOG TAB ── */}
+        {activeTab === 'activity-log' && (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+                  {['Timestamp', 'Actor', 'Action', 'Details', 'Result'].map((col) => (
+                    <th key={col} style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { action: 'ROLE_ASSIGN',   result: 'success'  },
+                  { action: 'MFA_TOGGLE',    result: 'success'  },
+                  { action: 'STATUS_CHANGE', result: 'success'  },
+                  { action: 'PERM_REQUEST',  result: 'pending'  },
+                  { action: 'ROLE_REMOVE',   result: 'success'  },
+                  { action: 'AUTO_LOCKOUT',  result: 'enforced' },
+                  { action: 'SESSION_KILL',  result: 'success'  },
+                ].map(({ action, result }, i, arr) => (
+                  <tr key={i} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', fontFamily: 'monospace', color: dm ? '#64748b' : '#9ca3af', whiteSpace: 'nowrap' }}>—</td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', fontFamily: 'monospace', color: dm ? '#93c5fd' : '#0891b2' }}>—</td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', border: `1px solid ${dm ? '#0891b2' : '#67e8f9'}`, color: dm ? '#22d3ee' : '#0891b2', background: 'transparent', fontFamily: 'monospace' }}>
+                        {action}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>—</td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{
+                        display: 'inline-block', padding: '3px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', fontFamily: 'monospace',
+                        ...(result === 'success'  ? { border: '1px solid #22c55e', color: '#16a34a', background: 'transparent' } :
+                            result === 'pending'  ? { border: '1px solid #f59e0b', color: '#d97706', background: 'transparent' } :
+                                                    { border: '1px solid #f97316', color: '#ea580c', background: 'transparent' }),
+                      }}>
+                        {result.toUpperCase()}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* ── USERS TAB ── */}
+        {activeTab === 'users' && <>
+          <div style={{ padding: '20px 24px 0' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <svg style={{ position: 'absolute', left: '14px', color: dm ? '#64748b' : '#9ca3af' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" placeholder={`Search ${role} users...`}
+                style={{ width: '100%', padding: '12px 14px 12px 42px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div style={{ overflowX: 'auto', padding: '16px 0 0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+                {['User', 'Email', 'Status', 'MFA', 'Last Login', 'Sessions', 'Actions'].map((col) => (
+                  <th key={col} style={{ padding: '10px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { initials: '—', name: '—', id: '—', email: '—', status: null, mfa: null, lastLogin: '—', sessions: null },
+                { initials: '—', name: '—', id: '—', email: '—', status: null, mfa: null, lastLogin: '—', sessions: null },
+                { initials: '—', name: '—', id: '—', email: '—', status: null, mfa: null, lastLogin: '—', sessions: null },
+                { initials: '—', name: '—', id: '—', email: '—', status: null, mfa: null, lastLogin: '—', sessions: null },
+              ].map((user, i, arr) => (
+                <tr key={i} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
+                  {/* User */}
+                  <td style={{ padding: '18px 20px', whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #0891b2, #0e7490)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{user.initials}</span>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', marginBottom: '2px' }}>{user.name}</div>
+                        <div style={{ fontSize: '11px', color: dm ? '#475569' : '#9ca3af' }}>{user.id}</div>
+                      </div>
+                    </div>
+                  </td>
+                  {/* Email */}
+                  <td style={{ padding: '18px 20px', fontSize: '13px', fontFamily: 'monospace', color: dm ? '#94a3b8' : '#6b7280' }}>{user.email}</td>
+                  {/* Status */}
+                  <td style={{ padding: '18px 20px' }}>
+                    <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, color: dm ? '#94a3b8' : '#6b7280' }}>—</span>
+                  </td>
+                  {/* MFA */}
+                  <td style={{ padding: '18px 20px' }}>
+                    <span style={{ display: 'inline-block', padding: '3px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', background: dm ? '#334155' : '#f3f4f6', color: dm ? '#94a3b8' : '#6b7280' }}>—</span>
+                  </td>
+                  {/* Last Login */}
+                  <td style={{ padding: '18px 20px', fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280', whiteSpace: 'nowrap' }}>{user.lastLogin}</td>
+                  {/* Sessions */}
+                  <td style={{ padding: '18px 20px', fontSize: '13px', color: dm ? '#64748b' : '#9ca3af' }}>— none</td>
+                  {/* Actions */}
+                  <td style={{ padding: '18px 20px', whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => { setEditingUser(user); setShowEditUser(true) }} style={{ padding: '5px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, background: 'transparent', color: dm ? '#94a3b8' : '#374151', cursor: 'pointer' }}>Edit</button>
+                      <button style={{ padding: '5px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #f97316', background: 'transparent', color: '#f97316', cursor: 'pointer' }}>Suspend</button>
+                      <button onClick={() => { setRemovingUser(user); setShowRemoveUser(true) }} style={{ padding: '5px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer' }}>Remove</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        </>}
+      </div>
+
+      {/* ── Edit User Modal ── */}
+      {showEditUser && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          onClick={() => setShowEditUser(false)}>
+          <div style={{ background: dm ? '#1e293b' : 'white', borderRadius: '18px', padding: '32px 36px', width: '100%', maxWidth: '480px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, fontFamily: "'Inter','Segoe UI',sans-serif" }}
+            onClick={(e) => e.stopPropagation()}>
+
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', letterSpacing: '0.8px', color: '#0891b2', textTransform: 'uppercase' }}>Edit User</h3>
+              <button onClick={() => setShowEditUser(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dm ? '#64748b' : '#9ca3af', padding: '4px', display: 'flex', alignItems: 'center', borderRadius: '6px' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* User identity card */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: dm ? '#0f172a' : '#f9fafb', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '12px', padding: '14px 16px', marginBottom: '24px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #0891b2, #0e7490)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ fontSize: '14px', fontWeight: '700', color: 'white' }}>{editingUser?.initials || '—'}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', marginBottom: '3px' }}>{editingUser?.name || '—'}</div>
+                <div style={{ fontSize: '12px', color: dm ? '#64748b' : '#9ca3af' }}>{editingUser?.id || '—'} &bull; {role}</div>
+              </div>
+            </div>
+
+            {/* Full Name */}
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Full Name</label>
+              <input type="text" defaultValue={editingUser?.name || ''}
+                placeholder="Full name"
+                style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* Email */}
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Email</label>
+              <input type="email" defaultValue={editingUser?.email || ''}
+                placeholder="user@cut.ac.zw"
+                style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* Status */}
+            <div style={{ marginBottom: '28px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Status</label>
+              <select defaultValue={editingUser?.status || ''}
+                style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box', cursor: 'pointer' }}>
+                <option value="">— Select status</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: '1px', background: dm ? '#334155' : '#f3f4f6', marginBottom: '20px' }} />
+
+            {/* Actions */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button onClick={() => setShowEditUser(false)}
+                style={{ padding: '10px 24px', background: 'transparent', color: dm ? '#94a3b8' : '#374151', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={() => setShowEditUser(false)}
+                style={{ padding: '10px 28px', background: '#0891b2', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Confirm Removal Modal ── */}
+      {showRemoveUser && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          onClick={() => setShowRemoveUser(false)}>
+          <div style={{ background: dm ? '#1e293b' : 'white', borderRadius: '18px', padding: '36px', width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, fontFamily: "'Inter','Segoe UI',sans-serif" }}
+            onClick={(e) => e.stopPropagation()}>
+
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', letterSpacing: '0.8px', color: '#ef4444', textTransform: 'uppercase' }}>Confirm Removal</h3>
+              <button onClick={() => setShowRemoveUser(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dm ? '#64748b' : '#9ca3af', padding: '4px', display: 'flex', alignItems: 'center', borderRadius: '6px' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Warning icon */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" fill="rgba(245,158,11,0.15)" />
+                <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+
+            {/* Message */}
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <p style={{ fontSize: '16px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827', margin: '0 0 12px' }}>
+                Remove{' '}
+                <span style={{ color: '#f97316' }}>{removingUser?.name || '—'}</span>
+                {' '}from {role}?
+              </p>
+              <p style={{ fontSize: '13px', color: dm ? '#64748b' : '#9ca3af', lineHeight: '1.7', margin: 0, fontFamily: 'monospace' }}>
+                This action will be recorded in the audit trail.<br />
+                The user's account will NOT be deleted from the system.
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: '1px', background: dm ? '#334155' : '#f3f4f6', marginBottom: '24px' }} />
+
+            {/* Actions */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button onClick={() => setShowRemoveUser(false)}
+                style={{ padding: '10px 24px', background: 'transparent', color: dm ? '#94a3b8' : '#374151', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={() => setShowRemoveUser(false)}
+                style={{ padding: '10px 28px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                Remove User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add User Modal ── */}
+      {showAddUser && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          onClick={() => setShowAddUser(false)}>
+          <div style={{ background: dm ? '#1e293b' : 'white', borderRadius: '18px', padding: '32px 36px', width: '100%', maxWidth: '480px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, fontFamily: "'Inter','Segoe UI',sans-serif" }}
+            onClick={(e) => e.stopPropagation()}>
+
+            {/* Modal header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', letterSpacing: '0.8px', color: '#0891b2', textTransform: 'uppercase' }}>
+                Add User — {role}
+              </h3>
+              <button onClick={() => setShowAddUser(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dm ? '#64748b' : '#9ca3af', padding: '4px', display: 'flex', alignItems: 'center', borderRadius: '6px' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Full Name */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Full Name</label>
+              <input type="text" placeholder="e.g. Tendai Moyo"
+                style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* Institutional Email */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Institutional Email</label>
+              <input type="email" placeholder="user@cut.ac.zw"
+                style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* MFA Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: dm ? '#0f172a' : '#f9fafb', borderRadius: '10px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, marginBottom: '28px' }}>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827', marginBottom: '3px' }}>Require MFA</div>
+                <div style={{ fontSize: '12px', color: dm ? '#64748b' : '#9ca3af' }}>Mandatory for IT Admin &amp; Security Analyst</div>
+              </div>
+              <button onClick={() => setMfaEnabled(!mfaEnabled)}
+                style={{ width: '46px', height: '26px', borderRadius: '999px', border: 'none', cursor: 'pointer', background: mfaEnabled ? '#0891b2' : (dm ? '#334155' : '#d1d5db'), position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                <span style={{ position: 'absolute', top: '3px', left: mfaEnabled ? '23px' : '3px', width: '20px', height: '20px', borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: '1px', background: dm ? '#334155' : '#f3f4f6', marginBottom: '20px' }} />
+
+            {/* Actions */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button onClick={() => setShowAddUser(false)}
+                style={{ padding: '10px 24px', background: 'transparent', color: dm ? '#94a3b8' : '#374151', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={() => setShowAddUser(false)}
+                style={{ padding: '10px 28px', background: '#0891b2', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                Add User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DashboardPage({ onLogout }) {
   const [activePage, setActivePage] = useState('risk')
   const [darkMode, setDarkMode] = useState(false)
+<<<<<<< HEAD
   const [riskData, setRiskData] = useState(null)
 
   const fetchRiskData = () => {
@@ -81,6 +687,9 @@ export default function DashboardPage({ onLogout }) {
     }
   }
 
+=======
+  const [managingRole, setManagingRole] = useState(null)
+>>>>>>> 0a76dfc6b74415328b1601d9824dc3a842acf12f
   const styles = makeStyles(darkMode)
   const dm = darkMode
 
@@ -311,8 +920,13 @@ export default function DashboardPage({ onLogout }) {
           </div>
         </>}
 
+        {/* ── ROLE PROFILE PAGE ── */}
+        {activePage === 'access' && managingRole && (
+          <RoleProfileView role={managingRole} onBack={() => setManagingRole(null)} dm={dm} styles={styles} />
+        )}
+
         {/* ── ACCESS CONTROL PAGE ── */}
-        {activePage === 'access' && <>
+        {activePage === 'access' && !managingRole && <>
           <div style={styles.cardGrid}>
             <div style={styles.card}>
               <span style={styles.cardLabel}>TOTAL USERS</span>
@@ -359,7 +973,7 @@ export default function DashboardPage({ onLogout }) {
                     <td style={styles.td}>
                       {mfa === 'required' ? <span style={styles.mfaRequired}>Required</span> : <span style={styles.mfaOptional}>Optional</span>}
                     </td>
-                    <td style={styles.td}><span style={styles.manageLink}>Manage &gt;</span></td>
+                    <td style={styles.td}><button onClick={() => setManagingRole(role)} style={styles.manageLink}>Manage &gt;</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -1030,6 +1644,23 @@ const makeStyles = (dm) => ({
     fontWeight: '600',
     color: '#0891b2',
     cursor: 'pointer',
+    background: 'none',
+    border: 'none',
+    padding: '0',
+  },
+  backBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    background: 'none',
+    border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+    borderRadius: '8px',
+    padding: '8px 16px',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: dm ? '#94a3b8' : '#374151',
+    cursor: 'pointer',
+    alignSelf: 'flex-start',
   },
   incidentList: {
     display: 'flex',

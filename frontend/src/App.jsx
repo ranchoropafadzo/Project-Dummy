@@ -2,6 +2,7 @@ import { useState } from 'react'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import SecurityAnalystPage from './pages/SecurityAnalystPage'
+import ComplianceOfficerPage from './pages/ComplianceOfficerPage'
 
 function App() {
   const [userRole, setUserRole] = useState(null) // null = show login
@@ -18,8 +19,8 @@ function App() {
       return <DashboardPage onLogout={handleLogout} />
     case 'security-analyst':
       return <SecurityAnalystPage onLogout={handleLogout} />
-    // Remaining roles — pages to be built
     case 'compliance-officer':
+      return <ComplianceOfficerPage onLogout={handleLogout} />
     case 'systems-auditor':
     case 'it-technician':
     default:
