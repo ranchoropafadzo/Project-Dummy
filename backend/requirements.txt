@@ -1,0 +1,26 @@
+torch
+scikit-learn
+fastapi
+uvicorn
+pydantic
+pandas
+numpy
+
+# LLM / Ollama
+langchain
+langchain-core
+langchain-community
+langchain-ollama
+ollama
+
+# PostgreSQL
+sqlalchemy
+asyncpg
+
+# Keycloak / Auth
+python-jose[cryptography]
+httpx
+
+# ELK Stack
+elasticsearch
+
