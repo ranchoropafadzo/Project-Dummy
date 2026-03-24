@@ -3,11 +3,11 @@ import logo from '../components/images/cut-logo.jpg'
 
 // Placeholder credentials — replace with real auth when backend is ready
 const CREDENTIALS = {
-  'itadmin@cut.ac.zw':   { role: 'it-admin',          password: 'admin123' },
-  'analyst@cut.ac.zw':   { role: 'security-analyst',   password: 'analyst123' },
-  'compliance@cut.ac.zw':{ role: 'compliance-officer', password: 'comply123' },
-  'auditor@cut.ac.zw':   { role: 'systems-auditor',    password: 'audit123' },
-  'tech@cut.ac.zw':      { role: 'it-technician',      password: 'tech123' },
+  'itadmin@cut.ac.zw': { role: 'it-admin', password: 'admin123' },
+  'analyst@cut.ac.zw': { role: 'security-analyst', password: 'analyst123' },
+  'compliance@cut.ac.zw': { role: 'compliance-officer', password: 'comply123' },
+  'auditor@cut.ac.zw': { role: 'systems-auditor', password: 'audit123' },
+  'tech@cut.ac.zw': { role: 'it-technician', password: 'tech123' },
 }
 
 export default function LoginPage({ onLogin }) {

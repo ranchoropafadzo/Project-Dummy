@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const NAV_ITEMS = [
   {
@@ -60,6 +60,17 @@ const ALERT_PLACEHOLDERS = [1, 2, 3, 4]
 export default function SecurityAnalystPage({ onLogout }) {
   const [activePage, setActivePage] = useState('events')
   const [darkMode, setDarkMode] = useState(false)
+  const [intelData, setIntelData] = useState(null)
+
+  useEffect(() => {
+    if (activePage === 'threat-intel') {
+      fetch('http://localhost:8000/api/v1/ui/analyst/intelligence')
+        .then(res => res.json())
+        .then(data => setIntelData(data))
+        .catch(err => console.error("Error fetching intel data", err))
+    }
+  }, [activePage])
+
   const styles = makeStyles(darkMode)
   const dm = darkMode
   const header = PAGE_HEADERS[activePage]
@@ -362,14 +373,14 @@ export default function SecurityAnalystPage({ onLogout }) {
         {activePage === 'threat-intel' && <>
           <div style={styles.cardGrid4}>
             {[
-              { label: 'ACTIVE IOCs',       color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'Indicators of compromise' },
-              { label: 'NEW CVEs (7D)',      color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Matching our stack' },
-              { label: 'THREAT FEEDS',      color: '#06b6d4', tint: dm ? '#0a1f2d' : '#ecfeff', border: dm ? '#164e63' : '#a5f3fc', sub: 'Active integrations' },
-              { label: 'BLOCKED IPs',       color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Auto-blocked today' },
-            ].map(({ label, color, tint, border, sub }) => (
+              { label: 'ACTIVE IOCs',       key: 'active_iocs', color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'Indicators of compromise' },
+              { label: 'NEW CVEs (7D)',     key: 'new_cves_7d', color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Matching our stack' },
+              { label: 'THREAT FEEDS',      key: 'threat_feeds', color: '#06b6d4', tint: dm ? '#0a1f2d' : '#ecfeff', border: dm ? '#164e63' : '#a5f3fc', sub: 'Active integrations' },
+              { label: 'BLOCKED IPs',       key: 'blocked_ips', color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Auto-blocked today' },
+            ].map(({ label, key, color, tint, border, sub }) => (
               <div key={label} style={{ ...styles.card, background: tint, border: `1px solid ${border}` }}>
                 <span style={{ ...styles.cardLabel, color }}>{label}</span>
-                <div style={{ ...styles.cardValue, color }}>—</div>
+                <div style={{ ...styles.cardValue, color }}>{intelData ? intelData[key] : '—'}</div>
                 <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>{sub}</div>
               </div>
             ))}

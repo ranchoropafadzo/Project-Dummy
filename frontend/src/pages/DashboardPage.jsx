@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const NAV_ITEMS = [
   {
@@ -46,6 +46,41 @@ const NAV_ITEMS = [
 export default function DashboardPage({ onLogout }) {
   const [activePage, setActivePage] = useState('risk')
   const [darkMode, setDarkMode] = useState(false)
+  const [riskData, setRiskData] = useState(null)
+
+  const fetchRiskData = () => {
+    fetch('http://localhost:8000/api/v1/ui/admin/overview')
+      .then(res => res.json())
+      .then(data => setRiskData(data))
+      .catch(err => console.error("Error fetching admin overview", err))
+  }
+
+  useEffect(() => {
+    if (activePage === 'risk') {
+      fetchRiskData()
+    }
+  }, [activePage])
+
+  const handleDeclareIncident = async () => {
+    try {
+      await fetch('http://localhost:8000/api/v1/risk/register_incident', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ incident_level: 'P1' })
+      })
+      // The backend initiates a background task to recalculate. 
+      // We wait a brief moment for the recalculation to finish before redrawing.
+      setTimeout(() => {
+        if (activePage === 'risk') fetchRiskData()
+      }, 2500) 
+      alert("P1 incident reported! Global Risk Score is being recalculated.")
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   const styles = makeStyles(darkMode)
   const dm = darkMode
 
@@ -151,6 +186,11 @@ export default function DashboardPage({ onLogout }) {
             )}
           </div>
           <div style={styles.headerRight}>
+            <button 
+              onClick={handleDeclareIncident} 
+              style={{ ...styles.themeToggle, background: '#ef4444', color: 'white', borderColor: '#b91c1c', fontWeight: 'bold' }}>
+              Declare P1 Incident
+            </button>
             <span style={styles.lastUpdated}>Last updated: —</span>
             {/* Dark / Light mode toggle */}
             <button onClick={() => setDarkMode(!dm)} style={styles.themeToggle} title={dm ? 'Switch to light mode' : 'Switch to dark mode'}>
@@ -214,7 +254,7 @@ export default function DashboardPage({ onLogout }) {
                 ))}</tr>
               </thead>
               <tbody>
-                {['PostgreSQL Primary','MongoDB Events','File Server NAS','Email Archives','Keycloak Config','Redis Snapshot'].map((job) => (
+                {['PostgreSQL Primary', 'MongoDB Events', 'File Server NAS', 'Email Archives', 'Keycloak Config', 'Redis Snapshot'].map((job) => (
                   <tr key={job}>
                     <td style={{ ...styles.td, fontWeight: '600', color: dm ? '#f1f5f9' : '#111827' }}>{job}</td>
                     <td style={styles.td}>—</td>
@@ -231,8 +271,8 @@ export default function DashboardPage({ onLogout }) {
             <div style={styles.chartHeader}><span style={styles.chartTitle}>STORAGE UTILIZATION</span></div>
             <div style={styles.storageList}>
               {[
-                { label: 'On-Prem NAS',   barColor: 'linear-gradient(to right, #f97316, #ef4444)' },
-                { label: 'S3 Cloud',      barColor: '#06b6d4' },
+                { label: 'On-Prem NAS', barColor: 'linear-gradient(to right, #f97316, #ef4444)' },
+                { label: 'S3 Cloud', barColor: '#06b6d4' },
                 { label: 'Off-site Tape', barColor: '#06b6d4' },
               ].map(({ label, barColor }) => (
                 <div key={label} style={styles.storageRow}>
@@ -252,7 +292,7 @@ export default function DashboardPage({ onLogout }) {
             <div style={styles.chartHeader}><span style={styles.chartTitle}>RETENTION SCHEDULE</span></div>
             <div style={styles.retentionList}>
               {[
-                { label: 'Daily Snapshots',  sub: '— days' },
+                { label: 'Daily Snapshots', sub: '— days' },
                 { label: 'Weekly Snapshots', sub: '— weeks' },
                 { label: 'Monthly Archives', sub: '— months' },
               ].map(({ label, sub }, i) => (
@@ -306,11 +346,11 @@ export default function DashboardPage({ onLogout }) {
               </thead>
               <tbody>
                 {[
-                  { role: 'IT Administrator',   access: 'Full',               mfa: 'required' },
-                  { role: 'Security Analyst',   access: 'Security & Logs',    mfa: 'required' },
+                  { role: 'IT Administrator', access: 'Full', mfa: 'required' },
+                  { role: 'Security Analyst', access: 'Security & Logs', mfa: 'required' },
                   { role: 'Compliance Officer', access: 'Reports & Policies', mfa: 'optional' },
-                  { role: 'System Auditor',     access: 'Read-Only Audit',    mfa: 'optional' },
-                  { role: 'IT Technician',      access: 'Operational',        mfa: 'optional' },
+                  { role: 'System Auditor', access: 'Read-Only Audit', mfa: 'optional' },
+                  { role: 'IT Technician', access: 'Operational', mfa: 'optional' },
                 ].map(({ role, access, mfa }) => (
                   <tr key={role}>
                     <td style={{ ...styles.td, color: '#0891b2', fontWeight: '600' }}>{role}</td>
@@ -333,10 +373,10 @@ export default function DashboardPage({ onLogout }) {
             <div style={styles.chartHeader}><span style={styles.chartTitle}>OPEN &amp; ACTIVE INCIDENTS</span></div>
             <div style={styles.incidentList}>
               {[
-                { title: 'Brute-force on admin account',      id: 'INC-0041', assigned: 'analyst_01', dot: '#ef4444', status: 'open',       severity: 'critical' },
-                { title: 'Email archive backup failure',      id: 'INC-0040', assigned: 'tech_02',    dot: '#f97316', status: 'in-progress', severity: 'high'     },
-                { title: 'Unauthorised access /data/finance', id: 'INC-0039', assigned: 'analyst_02', dot: '#ef4444', status: 'open',       severity: 'critical' },
-                { title: 'Port scan from external IP',        id: 'INC-0038', assigned: 'analyst_01', dot: '#f97316', status: 'resolved',    severity: 'medium'   },
+                { title: 'Brute-force on admin account', id: 'INC-0041', assigned: 'analyst_01', dot: '#ef4444', status: 'open', severity: 'critical' },
+                { title: 'Email archive backup failure', id: 'INC-0040', assigned: 'tech_02', dot: '#f97316', status: 'in-progress', severity: 'high' },
+                { title: 'Unauthorised access /data/finance', id: 'INC-0039', assigned: 'analyst_02', dot: '#ef4444', status: 'open', severity: 'critical' },
+                { title: 'Port scan from external IP', id: 'INC-0038', assigned: 'analyst_01', dot: '#f97316', status: 'resolved', severity: 'medium' },
                 { title: 'GDPR control gap \u2014 Data Retention', id: 'INC-0037', assigned: 'compliance', dot: '#f97316', status: 'in-progress', severity: 'medium' },
               ].map(({ title, id, assigned, dot, status, severity }, i, arr) => (
                 <div key={id} style={{ ...styles.incidentRow, borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#334155' : '#f3f4f6'}` : 'none' }}>
@@ -373,7 +413,7 @@ export default function DashboardPage({ onLogout }) {
                   </svg>
                 </div>
               </div>
-              <div style={styles.cardValue}>—</div>
+              <div style={styles.cardValue}>{riskData ? riskData.overall_risk_score.toFixed(1) : '—'}</div>
               <div style={styles.cardMeta}>
                 <span style={{ color: '#16a34a', fontWeight: '600' }}>↓ — pts</span>
                 <span style={{ color: dm ? '#94a3b8' : '#6b7280' }}> from last month</span>
@@ -390,7 +430,7 @@ export default function DashboardPage({ onLogout }) {
                   </svg>
                 </div>
               </div>
-              <div style={styles.cardValue}>—</div>
+              <div style={styles.cardValue}>{riskData ? riskData.critical_vulns : '—'}</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>Requires immediate action</div>
             </div>
 
@@ -405,7 +445,7 @@ export default function DashboardPage({ onLogout }) {
                   </svg>
                 </div>
               </div>
-              <div style={styles.cardValue}>—</div>
+              <div style={styles.cardValue}>{riskData ? riskData.active_incidents : '—'}</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>— critical, — medium</div>
             </div>
 
@@ -419,7 +459,7 @@ export default function DashboardPage({ onLogout }) {
                   </svg>
                 </div>
               </div>
-              <div style={styles.cardValue}>—</div>
+              <div style={styles.cardValue}>{riskData ? riskData.monitored_endpoints : '—'}</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>—% reporting</div>
             </div>
           </div>
@@ -443,7 +483,7 @@ export default function DashboardPage({ onLogout }) {
                 </div>
               </div>
               <div style={styles.xAxis}>
-                {['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'].map((m) => <span key={m} style={styles.xLabel}>{m}</span>)}
+                {['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'].map((m) => <span key={m} style={styles.xLabel}>{m}</span>)}
               </div>
             </div>
           </div>
@@ -453,7 +493,7 @@ export default function DashboardPage({ onLogout }) {
             <div style={styles.chartHeader}><span style={styles.chartTitle}>DEPARTMENT RISK HEATMAP</span></div>
             <div style={styles.heatmapArea}>
               <div style={styles.heatmapRows}>
-                {['Finance','Research','Registry','Library','IT Ops','HR'].map((dept) => (
+                {['Finance', 'Research', 'Registry', 'Library', 'IT Ops', 'HR'].map((dept) => (
                   <div key={dept} style={styles.heatmapRow}>
                     <span style={styles.deptLabel}>{dept}</span>
                     <div style={styles.barTrack}><div style={styles.barEmpty} /></div>
@@ -462,12 +502,12 @@ export default function DashboardPage({ onLogout }) {
               </div>
               <div style={styles.heatmapXAxis}>
                 <div style={styles.heatmapXLabels}>
-                  {[0,25,50,75,100].map((v) => <span key={v} style={styles.heatmapXLabel}>{v}</span>)}
+                  {[0, 25, 50, 75, 100].map((v) => <span key={v} style={styles.heatmapXLabel}>{v}</span>)}
                 </div>
               </div>
             </div>
             <div style={styles.legend}>
-              {[{ color:'#ef4444', label:'High Risk' },{ color:'#f59e0b', label:'Medium Risk' },{ color:'#22c55e', label:'Low Risk' }].map(({ color, label }) => (
+              {[{ color: '#ef4444', label: 'High Risk' }, { color: '#f59e0b', label: 'Medium Risk' }, { color: '#22c55e', label: 'Low Risk' }].map(({ color, label }) => (
                 <div key={label} style={styles.legendItem}>
                   <span style={{ ...styles.legendDot, background: color }} />
                   <span style={styles.legendLabel}>{label}</span>
@@ -491,10 +531,10 @@ export default function DashboardPage({ onLogout }) {
               </div>
               <div style={styles.vulnRows}>
                 {[
-                  { label:'Critical', color:'#ef4444' },
-                  { label:'High',     color:'#f97316' },
-                  { label:'Medium',   color:'#f59e0b' },
-                  { label:'Low',      color:'#22c55e' },
+                  { label: 'Critical', color: '#ef4444' },
+                  { label: 'High', color: '#f97316' },
+                  { label: 'Medium', color: '#f59e0b' },
+                  { label: 'Low', color: '#22c55e' },
                 ].map(({ label, color }) => (
                   <div key={label} style={styles.vulnRow}>
                     <div style={styles.vulnRowHeader}>
@@ -1043,25 +1083,25 @@ const makeStyles = (dm) => ({
     color: '#059669',
     marginRight: '4px',
   },
-  badgeOpen:       { display:'inline-block', padding:'3px 10px', borderRadius:'999px', fontSize:'12px', fontWeight:'500', border:'1px solid #fca5a5', color:'#ef4444', background:'transparent' },
-  badgeInProgress: { display:'inline-block', padding:'3px 10px', borderRadius:'999px', fontSize:'12px', fontWeight:'500', border:'1px solid #fcd34d', color:'#d97706', background:'transparent' },
-  badgeResolved:   { display:'inline-block', padding:'3px 10px', borderRadius:'999px', fontSize:'12px', fontWeight:'500', border:'1px solid #6ee7b7', color:'#059669', background:'transparent' },
-  badgeCritical:   { display:'inline-block', padding:'3px 10px', borderRadius:'999px', fontSize:'12px', fontWeight:'500', border:'1px solid #fca5a5', color:'#ef4444', background:'transparent' },
-  badgeHigh:       { display:'inline-block', padding:'3px 10px', borderRadius:'999px', fontSize:'12px', fontWeight:'500', border:'1px solid #fcd34d', color:'#d97706', background:'transparent' },
-  badgeMedium:     { display:'inline-block', padding:'3px 10px', borderRadius:'999px', fontSize:'12px', fontWeight:'500', border:'1px solid #fcd34d', color:'#d97706', background:'transparent' },
-  badgeNeutral:    { display:'inline-block', padding:'3px 14px', borderRadius:'999px', fontSize:'13px', fontWeight:'500', border:`1px solid ${dm ? '#475569' : '#e5e7eb'}`, color: dm ? '#94a3b8' : '#6b7280', background:'transparent' },
-  storageList: { display:'flex', flexDirection:'column', gap:'18px' },
-  storageRow:  { display:'flex', flexDirection:'column', gap:'8px' },
-  storageRowHeader: { display:'flex', justifyContent:'space-between', alignItems:'center' },
-  storageLabel: { fontSize:'14px', fontWeight:'600', color: dm ? '#f1f5f9' : '#111827' },
-  storageMeta:  { fontSize:'13px', color: dm ? '#64748b' : '#9ca3af' },
-  storageTrack: { height:'10px', background: dm ? '#334155' : '#f3f4f6', borderRadius:'999px', overflow:'hidden' },
-  storageBar:   { height:'100%', borderRadius:'999px', transition:'width 0.4s ease' },
-  retentionList: { display:'flex', flexDirection:'column' },
-  retentionRow:  { display:'flex', justifyContent:'space-between', alignItems:'center', padding:'16px 0' },
-  retentionLabel: { fontSize:'14px', fontWeight:'600', color: dm ? '#f1f5f9' : '#111827', marginBottom:'4px' },
-  retentionSub:   { fontSize:'13px', color: dm ? '#64748b' : '#9ca3af' },
-  copiesBadge: { border:'2px solid #06b6d4', borderRadius:'12px', padding:'10px 20px', textAlign:'center', minWidth:'100px' },
-  copiesNum:   { fontSize:'18px', fontWeight:'800', color:'#0891b2' },
-  copiesText:  { fontSize:'13px', color:'#0891b2', fontWeight:'500' },
+  badgeOpen: { display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '500', border: '1px solid #fca5a5', color: '#ef4444', background: 'transparent' },
+  badgeInProgress: { display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '500', border: '1px solid #fcd34d', color: '#d97706', background: 'transparent' },
+  badgeResolved: { display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '500', border: '1px solid #6ee7b7', color: '#059669', background: 'transparent' },
+  badgeCritical: { display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '500', border: '1px solid #fca5a5', color: '#ef4444', background: 'transparent' },
+  badgeHigh: { display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '500', border: '1px solid #fcd34d', color: '#d97706', background: 'transparent' },
+  badgeMedium: { display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: '500', border: '1px solid #fcd34d', color: '#d97706', background: 'transparent' },
+  badgeNeutral: { display: 'inline-block', padding: '3px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: '500', border: `1px solid ${dm ? '#475569' : '#e5e7eb'}`, color: dm ? '#94a3b8' : '#6b7280', background: 'transparent' },
+  storageList: { display: 'flex', flexDirection: 'column', gap: '18px' },
+  storageRow: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  storageRowHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  storageLabel: { fontSize: '14px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827' },
+  storageMeta: { fontSize: '13px', color: dm ? '#64748b' : '#9ca3af' },
+  storageTrack: { height: '10px', background: dm ? '#334155' : '#f3f4f6', borderRadius: '999px', overflow: 'hidden' },
+  storageBar: { height: '100%', borderRadius: '999px', transition: 'width 0.4s ease' },
+  retentionList: { display: 'flex', flexDirection: 'column' },
+  retentionRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' },
+  retentionLabel: { fontSize: '14px', fontWeight: '600', color: dm ? '#f1f5f9' : '#111827', marginBottom: '4px' },
+  retentionSub: { fontSize: '13px', color: dm ? '#64748b' : '#9ca3af' },
+  copiesBadge: { border: '2px solid #06b6d4', borderRadius: '12px', padding: '10px 20px', textAlign: 'center', minWidth: '100px' },
+  copiesNum: { fontSize: '18px', fontWeight: '800', color: '#0891b2' },
+  copiesText: { fontSize: '13px', color: '#0891b2', fontWeight: '500' },
 })
