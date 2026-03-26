@@ -651,8 +651,8 @@ function RoleProfileView({ role, onBack, dm, styles }) {
 export default function DashboardPage({ onLogout }) {
   const [activePage, setActivePage] = useState('risk')
   const [darkMode, setDarkMode] = useState(false)
-<<<<<<< HEAD
   const [riskData, setRiskData] = useState(null)
+  const [managingRole, setManagingRole] = useState(null)
 
   const fetchRiskData = () => {
     fetch('http://localhost:8000/api/v1/ui/admin/overview')
@@ -676,20 +676,15 @@ export default function DashboardPage({ onLogout }) {
         },
         body: JSON.stringify({ incident_level: 'P1' })
       })
-      // The backend initiates a background task to recalculate. 
-      // We wait a brief moment for the recalculation to finish before redrawing.
       setTimeout(() => {
         if (activePage === 'risk') fetchRiskData()
-      }, 2500) 
+      }, 2500)
       alert("P1 incident reported! Global Risk Score is being recalculated.")
     } catch (e) {
       console.error(e)
     }
   }
 
-=======
-  const [managingRole, setManagingRole] = useState(null)
->>>>>>> 0a76dfc6b74415328b1601d9824dc3a842acf12f
   const styles = makeStyles(darkMode)
   const dm = darkMode
 

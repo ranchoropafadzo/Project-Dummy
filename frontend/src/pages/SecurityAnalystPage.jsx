@@ -411,14 +411,13 @@ export default function SecurityAnalystPage({ onLogout }) {
         </>}
 
         {/* ── THREAT INTELLIGENCE PAGE ── */}
-<<<<<<< HEAD
         {activePage === 'threat-intel' && <>
           <div style={styles.cardGrid4}>
             {[
-              { label: 'ACTIVE IOCs',       key: 'active_iocs', color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'Indicators of compromise' },
-              { label: 'NEW CVEs (7D)',     key: 'new_cves_7d', color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Matching our stack' },
-              { label: 'THREAT FEEDS',      key: 'threat_feeds', color: '#06b6d4', tint: dm ? '#0a1f2d' : '#ecfeff', border: dm ? '#164e63' : '#a5f3fc', sub: 'Active integrations' },
-              { label: 'BLOCKED IPs',       key: 'blocked_ips', color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Auto-blocked today' },
+              { label: 'ACTIVE IOCs',   key: 'active_iocs',  color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'Indicators of compromise' },
+              { label: 'NEW CVEs (7D)', key: 'new_cves_7d',  color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Matching our stack' },
+              { label: 'THREAT FEEDS', key: 'threat_feeds',  color: '#06b6d4', tint: dm ? '#0a1f2d' : '#ecfeff', border: dm ? '#164e63' : '#a5f3fc', sub: 'Active integrations' },
+              { label: 'BLOCKED IPs',  key: 'blocked_ips',   color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Auto-blocked today' },
             ].map(({ label, key, color, tint, border, sub }) => (
               <div key={label} style={{ ...styles.card, background: tint, border: `1px solid ${border}` }}>
                 <span style={{ ...styles.cardLabel, color }}>{label}</span>
@@ -428,9 +427,6 @@ export default function SecurityAnalystPage({ onLogout }) {
             ))}
           </div>
 
-=======
-        {activePage === 'threat-intel' && (
->>>>>>> 0a76dfc6b74415328b1601d9824dc3a842acf12f
           <div style={styles.chartCard}>
             <div style={styles.chartHeader}><span style={styles.chartTitle}>DETECTED MITRE ATT&amp;CK TECHNIQUES (24H)</span></div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -465,7 +461,7 @@ export default function SecurityAnalystPage({ onLogout }) {
               ))}
             </div>
           </div>
-        )}
+        </>}
 
         <div style={{ minHeight: '32px', flexShrink: 0 }} />
       </main>
