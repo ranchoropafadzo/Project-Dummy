@@ -178,7 +178,10 @@ def get_admin_overview():
     return {
         "overall_risk_score": score,
         "critical_vulns": sum(len(c.cves) for c in risk_engine.components.values()),
-        "active_incidents": risk_engine.state.open_p1_p2_incidents,
+        "open_incidents": risk_engine.state.open_p1_p2_incidents,
+        "mttr_days": getattr(risk_engine.state, 'mttr_days', 4.2), # Default demo value
+        "patch_compliance": getattr(risk_engine.state, 'patch_compliance', 88.5), # Default demo value
+        "risk_trend": "increasing" if score > 50 else "stable",
         "monitored_endpoints": len(risk_engine.components),
         "risk_trend_data": [25, 30, 45, 60, 65, 55, 40, 20, score] # 9-month mock trend matching UI
     }
@@ -188,10 +191,15 @@ def get_analyst_intelligence():
     """Provides tactical threat intel for the Security Analyst 'THREAT INTELLIGENCE' tab."""
     # This aligns the Agentic AI capabilities directly with the Analyst view's requirements
     return {
-        "active_iocs": 4, # Mappable from Agent outputs
-        "new_cves_7d": 1, # Derived from query_cve_database() matches
-        "threat_feeds": 2, # E.g., MITRE TAXII feed active indicator
-        "blocked_ips": 12, # Accumulated count from propose_firewall_rule() executions
+        "active_iocs": 124,
+        "new_cves_7d": 8,
+        "threat_feeds": 5,
+        "blocked_ips": 42,
+        "remediation_priority": [
+            {"id": "CVE-2024-3094", "days_open": 12, "criticality": "Critical", "impact": "High Risk Surge"},
+            {"id": "CVE-2024-21626", "days_open": 24, "criticality": "High", "impact": "Component Decay"},
+            {"id": "CVE-2023-44487", "days_open": 45, "criticality": "Medium", "impact": "Legacy Debt"}
+        ],
         "live_alerts": [
             {
                 "level": "critical",

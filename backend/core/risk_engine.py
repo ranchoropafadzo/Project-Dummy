@@ -16,6 +16,8 @@ class ComponentRiskData(BaseModel):
 class EnvironmentState(BaseModel):
     open_p1_p2_incidents: int = 0
     patch_decay_factor: float = 1.0 # Starts at 1.0, increases if patches are delayed
+    mttr_days: float = 0.0 # Mean Time To Remediate (Critical/High)
+    patch_compliance: float = 100.0 # Percentage of compliant assets
 
 class RiskEngine:
     """
