@@ -111,9 +111,9 @@ export default function ComplianceOfficerPage({ onLogout }) {
       {/* ── Main ── */}
       <main style={styles.main}>
         {/* Header */}
-        <div style={styles.header}>
+        <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}`, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
           <div>
-            <h1 style={styles.pageTitle}>
+            <h1 style={{ ...styles.pageTitle, margin: '0 0 4px 0' }}>
               {activePage === 'overview' ? 'Compliance Overview'
                 : activePage === 'findings' ? 'Open Compliance Findings'
                 : 'Policy Rule Engine'}

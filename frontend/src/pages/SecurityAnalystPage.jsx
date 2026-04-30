@@ -180,9 +180,9 @@ export default function SecurityAnalystPage({ onLogout }) {
       {/* ── Main ── */}
       <main style={styles.main}>
         {/* Page Header */}
-        <div style={styles.header}>
+        <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}`, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
           <div>
-            <h1 style={styles.pageTitle}>{header.title}</h1>
+            <h1 style={{ ...styles.pageTitle, margin: '0 0 4px 0' }}>{header.title}</h1>
             <p style={styles.pageSubtitle}>
               <span style={styles.liveDot} />
               {header.subtitle} &mdash;{' '}
