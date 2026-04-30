@@ -831,7 +831,7 @@ export default function DashboardPage({ onLogout }) {
       {/* Main Content */}
       <main style={styles.main}>
         {/* Page Header */}
-        <div style={{ ...styles.card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ ...styles.card, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
           <div style={styles.headerLeft}>
             {activePage === 'backup' ? (
               <>
@@ -1415,6 +1415,10 @@ const makeStyles = (dm) => ({
   },
   headerLeft: {
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    textAlign: 'left',
   },
   headerRight: {
     display: 'flex',
@@ -1428,11 +1432,13 @@ const makeStyles = (dm) => ({
     fontWeight: '700',
     color: dm ? '#f1f5f9' : '#111827',
     margin: '0 0 4px 0',
+    textAlign: 'left',
   },
   pageSubtitle: {
     fontSize: '14px',
     color: dm ? '#94a3b8' : '#6b7280',
     margin: 0,
+    textAlign: 'left',
   },
   subtitleLink: {
     color: dm ? '#93c5fd' : '#1a237e',
