@@ -61,6 +61,52 @@ function RoleProfileView({ role, onBack, dm, styles }) {
   const tabs = ['USERS', 'PERMISSIONS', 'SETTINGS', 'ACTIVITY LOG']
   const tabIds = ['users', 'permissions', 'settings', 'activity-log']
 
+  const permissionsBase = {
+    'Backup Engine': { read: false, write: false, delete: false, admin: false },
+    'RBAC Service': { read: false, write: false, delete: false, admin: false },
+    'Security Logging': { read: false, write: false, delete: false, admin: false },
+    'File Access Detector': { read: false, write: false, delete: false, admin: false },
+    'Risk Assessment': { read: false, write: false, delete: false, admin: false },
+    'Compliance Manager': { read: false, write: false, delete: false, admin: false },
+  }
+
+  const getDefaultPermissions = (currentRole) => {
+    if (currentRole === 'IT Technician') {
+      return {
+        ...permissionsBase,
+        'Backup Engine': { read: true, write: true, delete: false, admin: false },
+        'RBAC Service': { read: true, write: false, delete: false, admin: false },
+        'Security Logging': { read: true, write: false, delete: false, admin: false },
+        'File Access Detector': { read: true, write: true, delete: false, admin: false },
+        'Risk Assessment': { read: true, write: false, delete: false, admin: false },
+      }
+    }
+    return permissionsBase
+  }
+
+  const [permissions, setPermissions] = useState(() => getDefaultPermissions(role))
+  const [permissionsSaved, setPermissionsSaved] = useState(false)
+
+  useEffect(() => {
+    setPermissions(getDefaultPermissions(role))
+    setPermissionsSaved(false)
+  }, [role])
+
+  const togglePermission = (module, perm) => {
+    setPermissions((prev) => ({
+      ...prev,
+      [module]: {
+        ...prev[module],
+        [perm]: !prev[module][perm],
+      },
+    }))
+  }
+
+  const handleSavePermissions = () => {
+    setPermissionsSaved(true)
+    window.setTimeout(() => setPermissionsSaved(false), 1600)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <button onClick={onBack} style={styles.backBtn}>
@@ -169,25 +215,29 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  'Backup Engine',
-                  'RBAC Service',
-                  'Security Logging',
-                  'File Access Detector',
-                  'Risk Assessment',
-                  'Compliance Manager',
-                ].map((module, i, arr) => (
-                  <tr key={module} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
+                {Object.entries(permissions).map(([module, perms], i) => (
+                  <tr key={module} style={{ borderBottom: i < Object.keys(permissions).length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
                     <td style={{ padding: '18px 16px', fontSize: '14px', fontWeight: '600', color: '#0891b2', fontFamily: 'monospace' }}>{module}</td>
                     {['read', 'write', 'delete', 'admin'].map((perm) => (
                       <td key={perm} style={{ padding: '18px 16px', textAlign: 'center' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '6px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, color: dm ? '#64748b' : '#9ca3af', fontSize: '13px' }}>—</span>
+                        <label style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '6px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, background: perms[perm] ? (dm ? '#164e63' : '#dbeafe') : 'transparent', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={perms[perm]} onChange={() => togglePermission(module, perm)} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                        </label>
                       </td>
                     ))}
                   </tr>
                 ))}
               </tbody>
             </table>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>
+                Selected permissions are enabled for <strong>{role}</strong>. Tick or untick options as needed and click Save Changes to retain them.
+              </div>
+              <button onClick={handleSavePermissions} style={{ width: '180px', padding: '12px 18px', background: '#0891b2', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                {permissionsSaved ? 'Saved' : 'Save Changes'}
+              </button>
+            </div>
 
             {/* Footer warning banner */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', background: dm ? 'rgba(245,158,11,0.08)' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fde68a'}`, borderRadius: '10px', padding: '14px 16px' }}>
@@ -481,11 +531,19 @@ function RoleProfileView({ role, onBack, dm, styles }) {
               </div>
             </div>
 
-            {/* Full Name */}
+            {/* First Name */}
             <div style={{ marginBottom: '18px' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Full Name</label>
-              <input type="text" defaultValue={editingUser?.name || ''}
-                placeholder="Full name"
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>First Name</label>
+              <input type="text" defaultValue={editingUser?.firstName || ''}
+                placeholder="First name"
+                style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* Surname */}
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Surname</label>
+              <input type="text" defaultValue={editingUser?.surname || ''}
+                placeholder="Surname"
                 style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
             </div>
 
@@ -601,10 +659,17 @@ function RoleProfileView({ role, onBack, dm, styles }) {
               </button>
             </div>
 
-            {/* Full Name */}
+            {/* First Name */}
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>First Name</label>
+              <input type="text" placeholder="e.g. Tendai"
+                style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* Surname */}
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Full Name</label>
-              <input type="text" placeholder="e.g. Tendai Moyo"
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', letterSpacing: '0.7px', color: dm ? '#64748b' : '#9ca3af', textTransform: 'uppercase', marginBottom: '8px' }}>Surname</label>
+              <input type="text" placeholder="e.g. Moyo"
                 style={{ width: '100%', padding: '12px 14px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '14px', color: dm ? '#f1f5f9' : '#111827', background: dm ? '#0f172a' : '#f9fafb', outline: 'none', boxSizing: 'border-box' }} />
             </div>
 
@@ -766,7 +831,7 @@ export default function DashboardPage({ onLogout }) {
       {/* Main Content */}
       <main style={styles.main}>
         {/* Page Header */}
-        <div style={styles.header}>
+        <div style={{ ...styles.card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
           <div style={styles.headerLeft}>
             {activePage === 'backup' ? (
               <>
@@ -1348,11 +1413,15 @@ const makeStyles = (dm) => ({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
-  headerLeft: {},
+  headerLeft: {
+    flex: 1,
+  },
   headerRight: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    marginLeft: 'auto',
+    flexShrink: 0,
   },
   pageTitle: {
     fontSize: '22px',
