@@ -10,6 +10,7 @@ import time
 from core.anomaly_detection import AnomalyDetector
 from core.agentic_ai import agentic_router, analyst_agent, AnomalyContext
 from core.risk_engine import risk_engine, ComponentRiskData, EnvironmentState
+from core.storyline_replay import build_storyline_replay, storyline_store
 from auth.keycloak import get_current_user_roles
 from connectors.elk_ingestor import poll_elasticsearch
 import asyncio
@@ -67,6 +68,24 @@ class TelemetryWindow(BaseModel):
     rbac_permissions: list[str]
     window_data: list[list[float]] # 60x32 matrix
 
+
+def persist_storyline_from_detection(
+    context: AnomalyContext,
+    detection_result: dict,
+    intelligence_report,
+    sequence_summary: str,
+):
+    replay = build_storyline_replay(
+        context=context,
+        detection_result=detection_result,
+        intelligence_report=intelligence_report,
+        risk_score=risk_engine.calculate_global_risk_score(),
+        sequence_summary=sequence_summary,
+        storyline_id=storyline_store.next_id(),
+    )
+    storyline_store.add(replay)
+    return replay
+
 @app.post("/api/v1/telemetry/ingest")
 async def ingest_telemetry_window(
     payload: TelemetryWindow, 
@@ -94,6 +113,7 @@ async def ingest_telemetry_window(
         logger.warning(f"Anomaly detected for user {payload.user_id}. Engaging Agentic AI Analyst.")
         
         # Build context for the agent
+        sequence_summary = "Spike in network discovery followed by admin panel access attempts."
         context = AnomalyContext(
             user_id=payload.user_id,
             cluster_id=payload.cluster_id,
@@ -101,17 +121,24 @@ async def ingest_telemetry_window(
             mse_score=detection_result["mse"],
             threshold=detection_result["threshold"],
             # Extracted heuristically or from actual event logs backing the sequence
-            events_summary="Spike in network discovery followed by admin panel access attempts.", 
+            events_summary=sequence_summary,
             suspicious_ip="192.168.45.99" # Mocked extraction for demonstration
         )
         
         intelligence_report = await analyst_agent.analyze(context)
+        replay = persist_storyline_from_detection(
+            context=context,
+            detection_result=detection_result,
+            intelligence_report=intelligence_report,
+            sequence_summary=sequence_summary,
+        )
 
         
         return {
             "status": "anomaly_detected",
             "layer_3_metrics": detection_result,
-            "layer_4_intelligence": intelligence_report
+            "layer_4_intelligence": intelligence_report,
+            "storyline_replay": replay,
         }
         
     except Exception as e:
@@ -127,6 +154,15 @@ class NewCVEReq(BaseModel):
 
 class IncidentRegistrationReq(BaseModel):
     incident_level: str # e.g. "P1", "P2", "P3"
+
+
+class DemoStorylineReq(BaseModel):
+    user_id: str = "sec-admin-01"
+    cluster_id: str = "cluster_admin"
+    source_ip: str = "192.168.45.99"
+    summary: str = "Privilege escalation attempt after rapid internal discovery and repeated admin surface probing."
+    target_port: str = "443"
+    cve_entries: list[str] = ["CVE-2024-3094"]
 
 @app.post("/api/v1/risk/register_cve")
 async def register_new_cve(payload: NewCVEReq, background_tasks: BackgroundTasks):
@@ -169,16 +205,77 @@ def get_global_risk_score():
         "last_recalculated": risk_engine.last_recalculated
     }
 
+
+@app.get("/api/v1/ui/analyst/storylines")
+def get_storyline_replays():
+    return storyline_store.summary()
+
+
+@app.get("/api/v1/ui/admin/incidents")
+def get_admin_incidents():
+    return {
+        "incidents": storyline_store.incident_tickets(),
+        "totals": storyline_store.summary()["totals"],
+    }
+
+
+@app.post("/api/v1/ui/analyst/storylines/simulate")
+async def simulate_storyline_replay(payload: DemoStorylineReq):
+    import numpy as np
+
+    mock_window = np.random.normal(loc=0.25, scale=0.18, size=(60, 32))
+    mock_window[10:15] += 2.8
+
+    detection_result = anomaly_detector.analyze_sequence(mock_window, cluster_id=payload.cluster_id)
+    if not detection_result["is_anomaly"]:
+        detection_result["is_anomaly"] = True
+        detection_result["mse"] = float(detection_result["threshold"] + 0.24)
+        detection_result["reason"] = (
+            f"MSE {detection_result['mse']:.4f} > Threshold {detection_result['threshold']:.4f}"
+        )
+
+    context = AnomalyContext(
+        user_id=payload.user_id,
+        cluster_id=payload.cluster_id,
+        rbac_permissions=["security-analyst", "incident-responder"],
+        mse_score=detection_result["mse"],
+        threshold=detection_result["threshold"],
+        cve_entries=payload.cve_entries,
+        events_summary=payload.summary,
+        suspicious_ip=payload.source_ip,
+        target_port=payload.target_port,
+    )
+
+    intelligence_report = await analyst_agent.analyze(context)
+    replay = persist_storyline_from_detection(
+        context=context,
+        detection_result=detection_result,
+        intelligence_report=intelligence_report,
+        sequence_summary=payload.summary,
+    )
+
+    return {
+        "status": "simulated",
+        "storyline_replay": replay,
+        "totals": storyline_store.summary()["totals"],
+    }
+
 # --- UI Alignment Endpoints (Mapping backend models to Frontend React Views) ---
 
 @app.get("/api/v1/ui/admin/overview")
 def get_admin_overview():
     """Provides high-level infrastructure metrics for the IT Administrator 'RISK OVERVIEW' tab."""
     score = risk_engine.calculate_global_risk_score()
+    storylines = storyline_store.list()
+    critical_storylines = sum(1 for item in storylines if item.severity == "critical")
+    medium_storylines = sum(1 for item in storylines if item.severity == "medium")
     return {
         "overall_risk_score": score,
         "critical_vulns": sum(len(c.cves) for c in risk_engine.components.values()),
         "open_incidents": risk_engine.state.open_p1_p2_incidents,
+        "active_incidents": len(storylines),
+        "critical_incidents": critical_storylines,
+        "medium_incidents": medium_storylines,
         "mttr_days": getattr(risk_engine.state, 'mttr_days', 4.2), # Default demo value
         "patch_compliance": getattr(risk_engine.state, 'patch_compliance', 88.5), # Default demo value
         "risk_trend": "increasing" if score > 50 else "stable",
@@ -190,17 +287,26 @@ def get_admin_overview():
 def get_analyst_intelligence():
     """Provides tactical threat intel for the Security Analyst 'THREAT INTELLIGENCE' tab."""
     # This aligns the Agentic AI capabilities directly with the Analyst view's requirements
+    storylines = storyline_store.list()
+    latest_alerts = [
+        {
+            "level": item.severity,
+            "label": item.title,
+            "source_ip": item.source_ip or "unknown",
+        }
+        for item in storylines[:3]
+    ]
     return {
-        "active_iocs": 124,
+        "active_iocs": max(124, len(storylines) * 7),
         "new_cves_7d": 8,
         "threat_feeds": 5,
-        "blocked_ips": 42,
+        "blocked_ips": sum(1 for item in storylines if item.containment_actions),
         "remediation_priority": [
             {"id": "CVE-2024-3094", "days_open": 12, "criticality": "Critical", "impact": "High Risk Surge"},
             {"id": "CVE-2024-21626", "days_open": 24, "criticality": "High", "impact": "Component Decay"},
             {"id": "CVE-2023-44487", "days_open": 45, "criticality": "Medium", "impact": "Legacy Debt"}
         ],
-        "live_alerts": [
+        "live_alerts": latest_alerts or [
             {
                 "level": "critical",
                 "label": "Brute Force Detected (T1110)",

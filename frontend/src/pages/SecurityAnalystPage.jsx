@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const API_BASE = 'http://localhost:8000'
 
 const NAV_ITEMS = [
   {
@@ -45,6 +47,16 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    id: 'attack-storyline',
+    label: 'ATTACK STORYLINE',
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 3v18h18" />
+        <path d="M7 15l3-3 3 2 5-6" />
+      </svg>
+    ),
+  },
 ]
 
 const PAGE_HEADERS = {
@@ -52,6 +64,7 @@ const PAGE_HEADERS = {
   'file-access': { title: 'FILE ACCESS ALERTS', subtitle: 'UNAUTHORISED FILE ACCESS DETECTOR', link: 'CHAIN-OF-CUSTODY LOG' },
   'login-monitor': { title: 'Login Monitor',         subtitle: 'Authentication Events', link: 'Brute-Force & Anomaly Detection' },
   'threat-intel':  { title: 'Threat Intelligence',   subtitle: 'Threat Feed',           link: 'CVE & IOC Correlation Engine' },
+  'attack-storyline': { title: 'Attack Storyline Replay', subtitle: 'Incident Chain Reconstruction', link: 'Anomaly to Containment Timeline' },
 }
 
 // Placeholder alert rows (no data)
@@ -60,9 +73,48 @@ const ALERT_PLACEHOLDERS = [1, 2, 3, 4]
 export default function SecurityAnalystPage({ onLogout }) {
   const [activePage, setActivePage] = useState('events')
   const [darkMode, setDarkMode] = useState(false)
+  const [storylineData, setStorylineData] = useState({ storylines: [], totals: { open: 0, critical: 0, blocked_ips: 0, avg_confidence: 0 } })
+  const [isSimulating, setIsSimulating] = useState(false)
+  const [storylineError, setStorylineError] = useState('')
   const styles = makeStyles(darkMode)
   const dm = darkMode
   const header = PAGE_HEADERS[activePage]
+
+  const loadStorylines = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/v1/ui/analyst/storylines`)
+      const data = await response.json()
+      setStorylineData(data)
+      setStorylineError('')
+    } catch (error) {
+      setStorylineError('Storyline service unavailable.')
+    }
+  }
+
+  const handleSimulateStoryline = async () => {
+    setIsSimulating(true)
+    try {
+      const response = await fetch(`${API_BASE}/api/v1/ui/analyst/storylines/simulate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+      if (!response.ok) {
+        throw new Error(`Simulation failed with status ${response.status}`)
+      }
+      await loadStorylines()
+    } catch (error) {
+      setStorylineError('Simulation failed. Ensure backend services are running, then retry.')
+    } finally {
+      setIsSimulating(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activePage === 'attack-storyline') {
+      loadStorylines()
+    }
+  }, [activePage])
 
   return (
     <div style={styles.wrapper}>
@@ -321,40 +373,73 @@ export default function SecurityAnalystPage({ onLogout }) {
         {/* ── LOGIN MONITOR PAGE ── */}
         {activePage === 'login-monitor' && <>
           <div style={styles.cardGrid4}>
-            {[
-              { label: 'FAILED LOGINS',       color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'In last hour' },
-              { label: 'ACCOUNTS LOCKED',     color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Pending unlock' },
-              { label: 'SUSPICIOUS SESSIONS', color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Under review' },
-              { label: 'ACTIVE SESSIONS',     color: '#22c55e', tint: dm ? '#0a1f10' : '#f0fdf4', border: dm ? '#14532d' : '#bbf7d0', sub: 'Across all systems' },
-            ].map(({ label, color, tint, border, sub }) => (
-              <div key={label} style={{ ...styles.card, background: tint, border: `1px solid ${border}` }}>
-                <span style={{ ...styles.cardLabel, color }}>{label}</span>
-                <div style={{ ...styles.cardValue, color }}>—</div>
-                <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>{sub}</div>
-              </div>
-            ))}
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+              <span style={{ ...styles.cardLabel, color: '#0891b2' }}>LOGINS (24H)</span>
+              <div style={{ ...styles.cardValue, color: '#16a34a' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Successful</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+              <span style={{ ...styles.cardLabel, color: '#0891b2' }}>FAILURES (24H)</span>
+              <div style={{ ...styles.cardValue, color: '#ef4444' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>—% failure rate</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+              <span style={{ ...styles.cardLabel, color: '#0891b2' }}>LOCKOUTS</span>
+              <div style={{ ...styles.cardValue, color: '#f97316' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Accounts locked today</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+              <span style={{ ...styles.cardLabel, color: '#0891b2' }}>GEO ANOMALIES</span>
+              <div style={{ ...styles.cardValue, color: '#f97316' }}>—</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Login from unusual regions</div>
+            </div>
           </div>
 
           <div style={styles.chartCard}>
-            <div style={styles.chartHeader}><span style={styles.chartTitle}>LOGIN ATTEMPT LOG</span></div>
-            <table style={styles.table}>
-              <thead>
-                <tr>{['User', 'IP Address', 'Location', 'Time', 'Result'].map((col) => (
-                  <th key={col} style={styles.th}>{col}</th>
-                ))}</tr>
-              </thead>
-              <tbody>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <tr key={i}>
-                    <td style={{ ...styles.td, fontWeight: '600', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
-                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px' }}>—.—.—.—</td>
-                    <td style={styles.td}>—</td>
-                    <td style={styles.td}>—:—</td>
-                    <td style={styles.td}><span style={i === 1 ? styles.badgeCritical : i === 3 ? styles.badgeHigh : styles.badgeNeutral}>{i === 1 ? 'blocked' : i === 3 ? 'suspicious' : '—'}</span></td>
-                  </tr>
+            <div style={styles.chartHeader}><span style={styles.chartTitle}>HOURLY LOGIN EVENTS</span></div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', paddingBottom: '28px', minWidth: '36px' }}>
+                {[20, 15, 10, 5, 0].map((v) => (
+                  <span key={v} style={{ fontSize: '12px', color: dm ? '#64748b' : '#0891b2' }}>{v}</span>
                 ))}
-              </tbody>
-            </table>
+              </div>
+
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ flex: 1, position: 'relative', height: '200px' }}>
+                  <svg width="100%" height="100%" viewBox="0 0 800 200" preserveAspectRatio="none" style={{ display: 'block', position: 'absolute', top: 0, left: 0 }}>
+                    {[0, 50, 100, 150, 200].map((y) => (
+                      <line key={y} x1="0" y1={y} x2="800" y2={y} stroke={dm ? '#334155' : '#e2e8f0'} strokeWidth="1" strokeDasharray="4,4" />
+                    ))}
+                    {[0,1,2,3,4,5,6,7,8,9,10,11].map((i) => (
+                      <line key={i} x1={i * (800/11)} y1="0" x2={i * (800/11)} y2="200" stroke={dm ? '#334155' : '#e2e8f0'} strokeWidth="1" strokeDasharray="4,4" />
+                    ))}
+                  </svg>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'flex-end', gap: '2px', padding: '0 4px' }}>
+                    {['00','02','04','06','08','10','12','14','16','18','20','22'].map((h) => (
+                      <div key={h} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', justifyContent: 'center' }}>
+                        <div style={{ width: '40%', background: '#ef4444', borderRadius: '2px 2px 0 0', height: '0px', minHeight: '0px' }} />
+                        <div style={{ width: '40%', background: '#10b981', borderRadius: '2px 2px 0 0', height: '0px', minHeight: '0px' }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', paddingTop: '8px' }}>
+                  {['00','02','04','06','08','10','12','14','16','18','20','22'].map((h) => (
+                    <div key={h} style={{ flex: 1, textAlign: 'center', fontSize: '12px', color: dm ? '#64748b' : '#6b7280' }}>{h}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '28px', marginTop: '16px' }}>
+              {[{ color: '#ef4444', label: 'Failed' }, { color: '#10b981', label: 'Successful' }].map(({ color, label }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: color, display: 'inline-block' }} />
+                  <span style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </>}
 
@@ -399,6 +484,75 @@ export default function SecurityAnalystPage({ onLogout }) {
                 ))}
               </tbody>
             </table>
+          </div>
+        </>}
+
+        {/* ── ATTACK STORYLINE PAGE ── */}
+        {activePage === 'attack-storyline' && <>
+          <div style={styles.cardGrid4}>
+            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+              <span style={{ ...styles.cardLabel, color: '#0891b2' }}>OPEN STORYLINES</span>
+              <div style={{ ...styles.cardValue, color: '#06b6d4' }}>{storylineData.totals?.open ?? 0}</div>
+              <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Active replay investigations</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#2d1a1a' : '#fff5f5', border: `1px solid ${dm ? '#7f1d1d' : '#fecaca'}` }}>
+              <span style={{ ...styles.cardLabel, color: dm ? '#fca5a5' : '#9b1c1c' }}>CRITICAL CHAINS</span>
+              <div style={{ ...styles.cardValue, color: '#ef4444' }}>{storylineData.totals?.critical ?? 0}</div>
+              <div style={{ fontSize: '13px', color: dm ? '#fca5a5' : '#9b1c1c' }}>High-priority incident narratives</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#0a1f2d' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#a5f3fc'}` }}>
+              <span style={{ ...styles.cardLabel, color: dm ? '#67e8f9' : '#155e75' }}>AUTO CONTAINMENT</span>
+              <div style={{ ...styles.cardValue, color: '#06b6d4' }}>{storylineData.totals?.blocked_ips ?? 0}</div>
+              <div style={{ fontSize: '13px', color: dm ? '#67e8f9' : '#155e75' }}>Firewall actions suggested</div>
+            </div>
+            <div style={{ ...styles.card, background: dm ? '#1e1030' : '#faf5ff', border: `1px solid ${dm ? '#4c1d95' : '#e9d5ff'}` }}>
+              <span style={{ ...styles.cardLabel, color: dm ? '#c4b5fd' : '#5b21b6' }}>AVG CONFIDENCE</span>
+              <div style={{ ...styles.cardValue, color: '#7c3aed' }}>{Math.round((storylineData.totals?.avg_confidence ?? 0) * 100)}%</div>
+              <div style={{ fontSize: '13px', color: dm ? '#c4b5fd' : '#5b21b6' }}>Agent confidence score</div>
+            </div>
+          </div>
+
+          <div style={styles.chartCard}>
+            <div style={styles.alertsHeader}>
+              <div style={styles.alertsTitleRow}>
+                <span style={styles.liveDotPulse} />
+                <span style={styles.alertsTitle}>Attack Storyline Feed</span>
+              </div>
+              <button onClick={handleSimulateStoryline} style={styles.viewAllBtn} disabled={isSimulating}>
+                {isSimulating ? 'Generating...' : 'Simulate Attack Storyline'}
+              </button>
+            </div>
+
+            {storylineError && (
+              <div style={{ marginBottom: '12px', background: dm ? '#3f0d18' : '#fff1f2', border: `1px solid ${dm ? '#7f1d1d' : '#fecdd3'}`, color: dm ? '#fecdd3' : '#be123c', borderRadius: '8px', padding: '10px 12px', fontSize: '13px', fontWeight: '600' }}>
+                {storylineError}
+              </div>
+            )}
+
+            <div style={styles.alertList}>
+              {(storylineData.storylines || []).map((item, i, arr) => (
+                <div key={item.storyline_id} style={{ ...styles.alertRow, borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
+                  <div style={styles.alertLeft}>
+                    <span style={{ ...styles.alertDot, background: item.severity === 'critical' ? '#ef4444' : item.severity === 'high' ? '#f97316' : '#eab308' }} />
+                    <div>
+                      <div style={styles.alertTitle}>{item.title}</div>
+                      <div style={styles.alertSource}>{item.storyline_id} • {item.mitre_tactic} • Source: {item.source_ip || 'unknown'}</div>
+                    </div>
+                  </div>
+                  <div style={styles.alertRight}>
+                    <span style={styles.alertTime}>{item.risk_delta ? `+${item.risk_delta} risk` : 'pending'}</span>
+                    <span style={item.severity === 'critical' ? styles.badgeCritical : item.severity === 'high' ? styles.badgeHigh : styles.badgeNeutral}>
+                      {item.severity}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {(!storylineData.storylines || storylineData.storylines.length === 0) && (
+                <div style={{ padding: '12px 0', color: dm ? '#94a3b8' : '#6b7280', fontSize: '13px' }}>
+                  No storyline events yet. Simulate an attack to populate replay history.
+                </div>
+              )}
+            </div>
           </div>
         </>}
 

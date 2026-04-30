@@ -652,6 +652,7 @@ export default function DashboardPage({ onLogout }) {
   const [activePage, setActivePage] = useState('risk')
   const [darkMode, setDarkMode] = useState(false)
   const [riskData, setRiskData] = useState(null)
+  const [incidentData, setIncidentData] = useState({ incidents: [], totals: { open: 0, critical: 0 } })
   const [managingRole, setManagingRole] = useState(null)
 
   const fetchRiskData = () => {
@@ -661,9 +662,19 @@ export default function DashboardPage({ onLogout }) {
       .catch(err => console.error("Error fetching admin overview", err))
   }
 
+  const fetchIncidentData = () => {
+    fetch('http://localhost:8000/api/v1/ui/admin/incidents')
+      .then(res => res.json())
+      .then(data => setIncidentData(data))
+      .catch(err => console.error("Error fetching admin incidents", err))
+  }
+
   useEffect(() => {
     if (activePage === 'risk') {
       fetchRiskData()
+    }
+    if (activePage === 'incidents') {
+      fetchIncidentData()
     }
   }, [activePage])
 
@@ -678,6 +689,7 @@ export default function DashboardPage({ onLogout }) {
       })
       setTimeout(() => {
         if (activePage === 'risk') fetchRiskData()
+        if (activePage === 'incidents') fetchIncidentData()
       }, 2500)
       alert("P1 incident reported! Global Risk Score is being recalculated.")
     } catch (e) {
@@ -981,7 +993,30 @@ export default function DashboardPage({ onLogout }) {
           <div style={styles.chartCard}>
             <div style={styles.chartHeader}><span style={styles.chartTitle}>OPEN &amp; ACTIVE INCIDENTS</span></div>
             <div style={styles.incidentList}>
-              {[
+              {(incidentData.incidents || []).map(({ title, incident_id, storyline_id, assigned, status, severity, sla_label, source_ip }, i, arr) => (
+                <div key={incident_id} style={{ ...styles.incidentRow, borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#334155' : '#f3f4f6'}` : 'none' }}>
+                  <div style={styles.incidentLeft}>
+                    <span style={{ ...styles.incidentDot, background: severity === 'critical' ? '#ef4444' : severity === 'high' ? '#f97316' : '#f59e0b' }} />
+                    <div>
+                      <div style={styles.incidentTitle}>{title}</div>
+                      <div style={styles.incidentMeta}>{incident_id} &bull; {storyline_id} &bull; Assigned: {assigned} &bull; Source: {source_ip || 'unknown'}</div>
+                    </div>
+                  </div>
+                  <div style={styles.incidentRight}>
+                    {status === 'resolved'
+                      ? <span style={styles.slaMet}>SLA met</span>
+                      : <span style={styles.incidentTime}>{sla_label}</span>}
+                    <span style={status === 'open' ? styles.badgeOpen : status === 'in-progress' ? styles.badgeInProgress : styles.badgeResolved}>{status}</span>
+                    <span style={severity === 'critical' ? styles.badgeCritical : severity === 'high' ? styles.badgeHigh : styles.badgeMedium}>{severity}</span>
+                  </div>
+                </div>
+              ))}
+              {!incidentData.incidents?.length && (
+                <div style={{ padding: '20px 0', color: dm ? '#94a3b8' : '#6b7280', fontSize: '14px' }}>
+                  No replay-driven incidents yet. Generate an attack storyline from the analyst console to populate this queue.
+                </div>
+              )}
+              {false && [
                 { title: 'Brute-force on admin account', id: 'INC-0041', assigned: 'analyst_01', dot: '#ef4444', status: 'open', severity: 'critical' },
                 { title: 'Email archive backup failure', id: 'INC-0040', assigned: 'tech_02', dot: '#f97316', status: 'in-progress', severity: 'high' },
                 { title: 'Unauthorised access /data/finance', id: 'INC-0039', assigned: 'analyst_02', dot: '#ef4444', status: 'open', severity: 'critical' },
@@ -1055,7 +1090,9 @@ export default function DashboardPage({ onLogout }) {
                 </div>
               </div>
               <div style={styles.cardValue}>{riskData ? riskData.active_incidents : '—'}</div>
-              <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>— critical, — medium</div>
+              <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>
+                {riskData ? `${riskData.critical_incidents} critical, ${riskData.medium_incidents} medium` : '— critical, — medium'}
+              </div>
             </div>
 
             <div style={styles.card}>
