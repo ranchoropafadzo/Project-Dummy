@@ -190,7 +190,6 @@ export default function SecurityAnalystPage({ onLogout }) {
             </p>
           </div>
           <div style={styles.headerRight}>
-            <span style={styles.lastUpdated}>Last updated: —</span>
             <button
               onClick={() => setDarkMode(!dm)}
               style={styles.themeToggle}
@@ -737,10 +736,6 @@ const makeStyles = (dm) => ({
   subtitleLink: {
     color: dm ? '#93c5fd' : '#1a237e',
     fontWeight: '500',
-  },
-  lastUpdated: {
-    fontSize: '13px',
-    color: dm ? '#64748b' : '#9ca3af',
   },
   themeToggle: {
     background: dm ? '#1e293b' : '#f1f5f9',

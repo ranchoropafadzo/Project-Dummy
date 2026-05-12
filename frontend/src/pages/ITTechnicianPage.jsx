@@ -97,35 +97,82 @@ export default function ITTechnicianPage({ onLogout }) {
         </div>
 
         {activePage === 'operational-status' && (
-          <div style={styles.cardGrid4}>
-            {/* Services Online Card */}
-            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
-              <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>SERVICES ONLINE</span>
-              <div style={{ ...styles.cardValue, color: '#10b981' }}>—</div>
-              <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— scanning</div>
+          <>
+            <div style={styles.cardGrid4}>
+              {/* Services Online Card */}
+              <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>SERVICES ONLINE</span>
+                <div style={{ ...styles.cardValue, color: '#10b981' }}>—</div>
+                <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— scanning</div>
+              </div>
+
+              {/* Assigned Tickets Card */}
+              <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>ASSIGNED TICKETS</span>
+                <div style={{ ...styles.cardValue, color: '#f59e0b' }}>—</div>
+                <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— backup failure</div>
+              </div>
+
+              {/* System Uptime Card */}
+              <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>SYSTEM UPTIME</span>
+                <div style={{ ...styles.cardValue, color: '#10b981' }}>—</div>
+                <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— average</div>
+              </div>
+
+              {/* Pending Tasks Card */}
+              <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
+                <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>PENDING TASKS</span>
+                <div style={{ ...styles.cardValue, color: '#06b6d4' }}>—</div>
+                <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— queue</div>
+              </div>
             </div>
 
-            {/* Assigned Tickets Card */}
-            <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
-              <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>ASSIGNED TICKETS</span>
-              <div style={{ ...styles.cardValue, color: '#f59e0b' }}>—</div>
-              <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— backup failure</div>
-            </div>
+            <section style={styles.statusSection}>
+              <div style={styles.sectionHeader}>
+                <div>
+                  <h2 style={styles.sectionTitle}>Service Health Status</h2>
+                  <p style={styles.sectionSubtitle}>
+                    Placeholder status grid for operational data simulation.
+                  </p>
+                </div>
+              </div>
 
-            {/* System Uptime Card */}
-            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
-              <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>SYSTEM UPTIME</span>
-              <div style={{ ...styles.cardValue, color: '#10b981' }}>—</div>
-              <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— average</div>
-            </div>
-
-            {/* Pending Tasks Card */}
-            <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
-              <span style={{ ...styles.cardLabel, color: dm ? '#9ca3af' : '#4b5563' }}>PENDING TASKS</span>
-              <div style={{ ...styles.cardValue, color: '#06b6d4' }}>—</div>
-              <div style={{ fontSize: '13px', color: dm ? '#9ca3af' : '#6b7280' }}>— queue</div>
-            </div>
-          </div>
+              <div style={styles.tableWrapper}>
+                <table style={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={styles.th}>Service</th>
+                      <th style={styles.th}>Status</th>
+                      <th style={styles.th}>Uptime (30d)</th>
+                      <th style={styles.th}>Latency</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      'Django API Gateway',
+                      'PostgreSQL Primary',
+                      'MongoDB Events',
+                      'Redis Cache',
+                      'ELK Stack',
+                      'OpenVAS Scanner',
+                      'Keycloak IAM',
+                      'Apache Kafka',
+                    ].map((service) => (
+                      <tr key={service} style={styles.tr}>
+                        <td style={styles.td}>{service}</td>
+                        <td style={styles.td}>
+                          <span style={styles.statusBadge}>—</span>
+                        </td>
+                        <td style={styles.td}>—</td>
+                        <td style={styles.td}>—</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
         )}
       </main>
     </div>
@@ -297,6 +344,71 @@ const makeStyles = (dm) => ({
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '24px',
+  },
+  statusSection: {
+    marginTop: '32px',
+    padding: '28px',
+    background: dm ? '#111827' : '#f9fafb',
+    border: `1px solid ${dm ? '#374151' : '#e5e7eb'}`,
+    borderRadius: '24px',
+  },
+  sectionHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '20px',
+    gap: '16px',
+  },
+  sectionTitle: {
+    fontSize: '20px',
+    fontWeight: '700',
+    color: dm ? '#f8fafc' : '#111827',
+    margin: 0,
+  },
+  sectionSubtitle: {
+    margin: '6px 0 0',
+    color: dm ? '#94a3b8' : '#6b7280',
+    fontSize: '14px',
+    lineHeight: '1.5',
+  },
+  tableWrapper: {
+    overflowX: 'auto',
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    minWidth: '720px',
+  },
+  th: {
+    textAlign: 'left',
+    padding: '14px 16px',
+    fontSize: '12px',
+    fontWeight: '700',
+    color: dm ? '#94a3b8' : '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: '0.8px',
+    borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+  },
+  tr: {
+    transition: 'background 0.2s ease',
+  },
+  td: {
+    padding: '16px',
+    color: dm ? '#e2e8f0' : '#111827',
+    fontSize: '14px',
+    borderBottom: `1px solid ${dm ? '#1f2937' : '#e5e7eb'}`,
+  },
+  statusBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '60px',
+    padding: '6px 10px',
+    borderRadius: '999px',
+    background: dm ? '#1f2937' : '#f3f4f6',
+    color: dm ? '#cbd5e1' : '#475569',
+    fontWeight: '600',
+    fontSize: '13px',
   },
   card: {
     borderRadius: '20px',

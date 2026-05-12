@@ -127,7 +127,6 @@ export default function ComplianceOfficerPage({ onLogout }) {
             </p>
           </div>
           <div style={styles.headerRight}>
-            <span style={styles.lastUpdated}>Last updated: —</span>
             <button onClick={() => setDarkMode(!dm)} style={styles.themeToggle} title={dm ? 'Light mode' : 'Dark mode'}>
               {dm ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -514,10 +513,6 @@ const makeStyles = (dm) => ({
     fontSize: '14px',
     color: dm ? '#94a3b8' : '#6b7280',
     margin: 0,
-  },
-  lastUpdated: {
-    fontSize: '13px',
-    color: dm ? '#64748b' : '#9ca3af',
   },
   themeToggle: {
     background: dm ? '#1e293b' : '#f1f5f9',
