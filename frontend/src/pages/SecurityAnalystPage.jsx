@@ -371,8 +371,8 @@ export default function SecurityAnalystPage({ onLogout }) {
                   { action: 'LIST',  statusStyle: 'badgeAllowed',     statusLabel: 'allowed'     },
                 ].map(({ action, statusStyle, statusLabel }, i) => (
                   <tr key={i}>
-                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>—:—:—</td>
-                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
+                    <td style={{ ...styles.td, fontFamily: "'Inter', 'Segoe UI', sans-serif", fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>—:—:—</td>
+                    <td style={{ ...styles.td, fontFamily: "'Inter', 'Segoe UI', sans-serif", fontSize: '13px', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
                     <td style={{ ...styles.td, color: dm ? '#94a3b8' : '#6b7280' }}>—</td>
                     <td style={styles.td}><span style={styles.badgeAction}>{action}</span></td>
                     <td style={{ ...styles.td, color: dm ? '#94a3b8' : '#6b7280' }}>—</td>
@@ -485,7 +485,7 @@ export default function SecurityAnalystPage({ onLogout }) {
               <tbody>
                 {[1, 2, 3, 4, 5].map((i) => (
                   <tr key={i}>
-                    <td style={{ ...styles.td, fontFamily: 'monospace', fontSize: '13px', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
+                    <td style={{ ...styles.td, fontFamily: "'Inter', 'Segoe UI', sans-serif", fontSize: '13px', color: dm ? '#f1f5f9' : '#111827' }}>—</td>
                     <td style={styles.td}>—</td>
                     <td style={styles.td}>—</td>
                     <td style={styles.td}>

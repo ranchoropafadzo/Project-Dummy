@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage'
 import SecurityAnalystPage from './pages/SecurityAnalystPage'
 import ComplianceOfficerPage from './pages/ComplianceOfficerPage'
 import ITTechnicianPage from './pages/ITTechnicianPage'
+import SystemAuditorPage from './pages/SystemAuditorPage'
 
 function App() {
   const [userRole, setUserRole] = useState(null) // null = show login
@@ -25,6 +26,7 @@ function App() {
     case 'it-technician':
       return <ITTechnicianPage onLogout={handleLogout} />
     case 'systems-auditor':
+      return <SystemAuditorPage onLogout={handleLogout} />
 
     default:
       return (

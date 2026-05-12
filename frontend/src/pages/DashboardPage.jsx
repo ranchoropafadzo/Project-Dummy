@@ -199,9 +199,9 @@ function RoleProfileView({ role, onBack, dm, styles }) {
         {activeTab === 'permissions' && (
           <div style={{ padding: '20px 24px' }}>
             {/* Description */}
-            <p style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280', margin: '0 0 20px', fontFamily: 'monospace' }}>
+            <p style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280', margin: '0 0 20px', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
               Module-level permissions for{' '}
-              <strong style={{ color: '#0891b2', fontFamily: 'monospace' }}>{role}</strong>.
+              <strong style={{ color: '#0891b2', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>{role}</strong>.
               {' '}Contact IT Administrator to request changes.
             </p>
 
@@ -217,7 +217,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
               <tbody>
                 {Object.entries(permissions).map(([module, perms], i) => (
                   <tr key={module} style={{ borderBottom: i < Object.keys(permissions).length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
-                    <td style={{ padding: '18px 16px', fontSize: '14px', fontWeight: '600', color: '#0891b2', fontFamily: 'monospace' }}>{module}</td>
+                    <td style={{ padding: '18px 16px', fontSize: '14px', fontWeight: '600', color: '#0891b2', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>{module}</td>
                     {['read', 'write', 'delete', 'admin'].map((perm) => (
                       <td key={perm} style={{ padding: '18px 16px', textAlign: 'center' }}>
                         <label style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '6px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, background: perms[perm] ? (dm ? '#164e63' : '#dbeafe') : 'transparent', cursor: 'pointer' }}>
@@ -244,7 +244,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
-              <span style={{ fontSize: '12px', color: dm ? '#fcd34d' : '#92400e', fontFamily: 'monospace', lineHeight: '1.6' }}>
+              <span style={{ fontSize: '12px', color: dm ? '#fcd34d' : '#92400e', fontFamily: "'Inter', 'Segoe UI', sans-serif", lineHeight: '1.6' }}>
                 Permission changes require IT Administrator approval and are logged to the audit trail per ISO 27001 A.9.
               </span>
             </div>
@@ -261,7 +261,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={dm ? '#94a3b8' : '#6b7280'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
-                <span style={{ fontSize: '13px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', letterSpacing: '0.5px', fontFamily: 'monospace' }}>AUTHENTICATION POLICY</span>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', letterSpacing: '0.5px', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>AUTHENTICATION POLICY</span>
               </div>
 
               <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -294,7 +294,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                   <input
                     type="number"
                     placeholder="—"
-                    style={{ width: '80px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${dm ? '#475569' : '#d1d5db'}`, background: dm ? '#0f172a' : '#f9fafb', color: dm ? '#f1f5f9' : '#111827', fontSize: '14px', textAlign: 'center', outline: 'none', fontFamily: 'monospace' }}
+                    style={{ width: '80px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${dm ? '#475569' : '#d1d5db'}`, background: dm ? '#0f172a' : '#f9fafb', color: dm ? '#f1f5f9' : '#111827', fontSize: '14px', textAlign: 'center', outline: 'none', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}
                   />
                 </div>
 
@@ -309,7 +309,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                   <input
                     type="number"
                     placeholder="—"
-                    style={{ width: '80px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${dm ? '#475569' : '#d1d5db'}`, background: dm ? '#0f172a' : '#f9fafb', color: dm ? '#f1f5f9' : '#111827', fontSize: '14px', textAlign: 'center', outline: 'none', fontFamily: 'monospace' }}
+                    style={{ width: '80px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${dm ? '#475569' : '#d1d5db'}`, background: dm ? '#0f172a' : '#f9fafb', color: dm ? '#f1f5f9' : '#111827', fontSize: '14px', textAlign: 'center', outline: 'none', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}
                   />
                 </div>
 
@@ -331,7 +331,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
             </div>
             {/* ACCESS SCOPE Card */}
             <div style={{ marginTop: '20px' }}>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '1.5px', marginBottom: '10px', fontFamily: 'monospace' }}>ACCESS SCOPE</div>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '1.5px', marginBottom: '10px', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>ACCESS SCOPE</div>
               <div style={{ background: dm ? '#1e293b' : '#fff', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '12px', padding: '4px 0' }}>
                 {[
                   { label: 'Restrict access to working hours (08:00–17:00 CAT)', val: restrictHours, set: setRestrictHours },
@@ -340,7 +340,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                 ].map(({ label, val, set }, i, arr) => (
                   <div key={label}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: '500', color: dm ? '#f1f5f9' : '#111827', fontFamily: 'monospace' }}>{label}</span>
+                      <span style={{ fontSize: '14px', fontWeight: '500', color: dm ? '#f1f5f9' : '#111827', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>{label}</span>
                       <div onClick={() => set(v => !v)} style={{ position: 'relative', width: '44px', height: '24px', flexShrink: 0, cursor: 'pointer' }}>
                         <div style={{ width: '44px', height: '24px', borderRadius: '12px', background: val ? '#0891b2' : (dm ? '#334155' : '#d1d5db'), transition: 'background 0.2s' }} />
                         <div style={{ position: 'absolute', top: '3px', left: val ? '23px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
@@ -354,7 +354,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
 
             {/* NOTIFICATION PREFERENCES Card */}
             <div style={{ marginTop: '20px' }}>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '1.5px', marginBottom: '10px', fontFamily: 'monospace' }}>NOTIFICATION PREFERENCES</div>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '1.5px', marginBottom: '10px', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>NOTIFICATION PREFERENCES</div>
               <div style={{ background: dm ? '#1e293b' : '#fff', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, borderRadius: '12px', padding: '4px 0' }}>
                 {[
                   { label: 'Email alert on new login', val: emailAlertLogin, set: setEmailAlertLogin },
@@ -363,7 +363,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                 ].map(({ label, val, set }, i, arr) => (
                   <div key={label}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: '500', color: dm ? '#f1f5f9' : '#111827', fontFamily: 'monospace' }}>{label}</span>
+                      <span style={{ fontSize: '14px', fontWeight: '500', color: dm ? '#f1f5f9' : '#111827', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>{label}</span>
                       <div onClick={() => set(v => !v)} style={{ position: 'relative', width: '44px', height: '24px', flexShrink: 0, cursor: 'pointer' }}>
                         <div style={{ width: '44px', height: '24px', borderRadius: '12px', background: val ? '#0891b2' : (dm ? '#334155' : '#d1d5db'), transition: 'background 0.2s' }} />
                         <div style={{ position: 'absolute', top: '3px', left: val ? '23px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
@@ -377,7 +377,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
 
             {/* SAVE SETTINGS Button */}
             <div style={{ marginTop: '24px' }}>
-              <button style={{ padding: '12px 28px', background: 'transparent', color: '#0891b2', border: '2px solid #0891b2', borderRadius: '8px', fontSize: '13px', fontWeight: '700', letterSpacing: '1px', fontFamily: 'monospace', cursor: 'pointer' }}>
+              <button style={{ padding: '12px 28px', background: 'transparent', color: '#0891b2', border: '2px solid #0891b2', borderRadius: '8px', fontSize: '13px', fontWeight: '700', letterSpacing: '1px', fontFamily: "'Inter', 'Segoe UI', sans-serif", cursor: 'pointer' }}>
                 SAVE SETTINGS
               </button>
             </div>
@@ -406,17 +406,17 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                   { action: 'SESSION_KILL',  result: 'success'  },
                 ].map(({ action, result }, i, arr) => (
                   <tr key={i} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#1e293b' : '#f3f4f6'}` : 'none' }}>
-                    <td style={{ padding: '16px 20px', fontSize: '13px', fontFamily: 'monospace', color: dm ? '#64748b' : '#9ca3af', whiteSpace: 'nowrap' }}>—</td>
-                    <td style={{ padding: '16px 20px', fontSize: '13px', fontFamily: 'monospace', color: dm ? '#93c5fd' : '#0891b2' }}>—</td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', fontFamily: "'Inter', 'Segoe UI', sans-serif", color: dm ? '#64748b' : '#9ca3af', whiteSpace: 'nowrap' }}>—</td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', fontFamily: "'Inter', 'Segoe UI', sans-serif", color: dm ? '#93c5fd' : '#0891b2' }}>—</td>
                     <td style={{ padding: '16px 20px' }}>
-                      <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', border: `1px solid ${dm ? '#0891b2' : '#67e8f9'}`, color: dm ? '#22d3ee' : '#0891b2', background: 'transparent', fontFamily: 'monospace' }}>
+                      <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', border: `1px solid ${dm ? '#0891b2' : '#67e8f9'}`, color: dm ? '#22d3ee' : '#0891b2', background: 'transparent', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
                         {action}
                       </span>
                     </td>
                     <td style={{ padding: '16px 20px', fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>—</td>
                     <td style={{ padding: '16px 20px' }}>
                       <span style={{
-                        display: 'inline-block', padding: '3px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', fontFamily: 'monospace',
+                        display: 'inline-block', padding: '3px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', fontFamily: "'Inter', 'Segoe UI', sans-serif",
                         ...(result === 'success'  ? { border: '1px solid #22c55e', color: '#16a34a', background: 'transparent' } :
                             result === 'pending'  ? { border: '1px solid #f59e0b', color: '#d97706', background: 'transparent' } :
                                                     { border: '1px solid #f97316', color: '#ea580c', background: 'transparent' }),
@@ -474,7 +474,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                     </div>
                   </td>
                   {/* Email */}
-                  <td style={{ padding: '18px 20px', fontSize: '13px', fontFamily: 'monospace', color: dm ? '#94a3b8' : '#6b7280' }}>{user.email}</td>
+                  <td style={{ padding: '18px 20px', fontSize: '13px', fontFamily: "'Inter', 'Segoe UI', sans-serif", color: dm ? '#94a3b8' : '#6b7280' }}>{user.email}</td>
                   {/* Status */}
                   <td style={{ padding: '18px 20px' }}>
                     <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, color: dm ? '#94a3b8' : '#6b7280' }}>—</span>
@@ -616,7 +616,7 @@ function RoleProfileView({ role, onBack, dm, styles }) {
                 <span style={{ color: '#f97316' }}>{removingUser?.name || '—'}</span>
                 {' '}from {role}?
               </p>
-              <p style={{ fontSize: '13px', color: dm ? '#64748b' : '#9ca3af', lineHeight: '1.7', margin: 0, fontFamily: 'monospace' }}>
+              <p style={{ fontSize: '13px', color: dm ? '#64748b' : '#9ca3af', lineHeight: '1.7', margin: 0, fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
                 This action will be recorded in the audit trail.<br />
                 The user's account will NOT be deleted from the system.
               </p>
