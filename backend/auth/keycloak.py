@@ -2,12 +2,14 @@ import httpx
 from jose import jwt, JWTError
 from fastapi import Request, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import Optional
 import config as cfg
 import logging
 
 logger = logging.getLogger("KeycloakAuth")
 
 security = HTTPBearer()
+optional_security = HTTPBearer(auto_error=False)
 
 class KeycloakAuth:
     def __init__(self):
@@ -75,6 +77,14 @@ class KeycloakAuth:
 
 auth_handler = KeycloakAuth()
 
+def _roles_from_payload(payload: dict) -> list[str]:
+    roles = []
+    realm_access = payload.get("realm_access", {})
+    if isinstance(realm_access, dict):
+        roles.extend(realm_access.get("roles", []))
+    return roles
+
+
 async def get_current_user_roles(credentials: HTTPAuthorizationCredentials = Security(security)) -> list[str]:
     """
     FastAPI Dependency to validate token and extract RBAC roles.
@@ -82,16 +92,22 @@ async def get_current_user_roles(credentials: HTTPAuthorizationCredentials = Sec
     """
     token = credentials.credentials
     payload = await auth_handler.verify_token(token)
-    
-    # Extract roles (Keycloak specific hierarchy)
-    # Payload format is typically: {"realm_access": {"roles": ["admin", "user"]}}
-    roles = []
-    realm_access = payload.get("realm_access", {})
-    if isinstance(realm_access, dict):
-        roles.extend(realm_access.get("roles", []))
-        
-    # User ID usually in 'sub' or 'preferred_username'
+    roles = _roles_from_payload(payload)
     user_id = payload.get("preferred_username", payload.get("sub", "unknown"))
-    
     logger.debug(f"Authenticated user: {user_id} with roles: {roles}")
     return roles
+
+
+async def get_telemetry_ingest_roles(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Security(optional_security),
+) -> list[str]:
+    """
+    Accept Keycloak JWT or optional X-Internal-Ingest-Token matching INTERNAL_INGEST_TOKEN (poller / automation).
+    """
+    if cfg.INTERNAL_INGEST_TOKEN and request.headers.get("X-Internal-Ingest-Token") == cfg.INTERNAL_INGEST_TOKEN:
+        return ["ingested_role"]
+    if credentials is None:
+        raise HTTPException(status_code=401, detail="Missing bearer token or internal ingest secret.")
+    payload = await auth_handler.verify_token(credentials.credentials)
+    return _roles_from_payload(payload)

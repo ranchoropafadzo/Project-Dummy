@@ -170,6 +170,11 @@ class SecurityAnalystAgent:
                 return result
             except Exception as exc:
                 logger.warning(f"LLM chain unavailable or timed out; using fallback reasoning: {exc}")
+                if not cfg.ALLOW_MOCK_INTELLIGENCE:
+                    raise
+
+        if not self.chain and not cfg.ALLOW_MOCK_INTELLIGENCE:
+            raise RuntimeError("Intelligence LLM is required but Ollama is not available.")
 
         return await self._mock_response(context, severity_ratio, mitre_data)
 

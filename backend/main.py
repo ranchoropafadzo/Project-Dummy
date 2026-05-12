@@ -1,17 +1,32 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import logging
-import time
+
+import config as cfg
 
 from core.anomaly_detection import AnomalyDetector
-from core.agentic_ai import agentic_router, analyst_agent, AnomalyContext
+from core.agentic_ai import agentic_router
 from core.risk_engine import risk_engine, ComponentRiskData, EnvironmentState
-from core.storyline_replay import build_storyline_replay, storyline_store
-from auth.keycloak import get_current_user_roles
+from core.storyline_replay import (
+    build_storyline_from_timeline_llm,
+    storyline_store,
+)
+from core.incident_correlation import (
+    build_minimal_timeline_from_anomaly,
+    fetch_and_cluster_recent_timelines,
+    fetch_context_timeline_for_anomaly,
+    fingerprint_store,
+    IncidentTimeline,
+)
+from core.incident_reconstruction import (
+    anomaly_metrics_block,
+    invoke_timeline_llm,
+    StorylineLLMUnavailable,
+)
+from auth.keycloak import get_telemetry_ingest_roles
 from connectors.elk_ingestor import poll_elasticsearch
 import asyncio
 
@@ -19,11 +34,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("AITRMS-Main")
 
 app = FastAPI(title="AITRMS Core Intelligence Hub", version="1.0")
-
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Starting ELK telemetry ingestion background task...")
-    asyncio.create_task(poll_elasticsearch())
 
 # Aligning backend with the Vite frontend (port 5173) we saw in the UI
 app.add_middleware(
@@ -66,30 +76,81 @@ class TelemetryWindow(BaseModel):
     user_id: str
     cluster_id: str
     rbac_permissions: list[str]
-    window_data: list[list[float]] # 60x32 matrix
+    window_data: list[list[float]]  # 60x32 matrix
+    suspicious_ip: str | None = None
+    events_summary: str | None = None
 
 
-def persist_storyline_from_detection(
-    context: AnomalyContext,
-    detection_result: dict,
-    intelligence_report,
-    sequence_summary: str,
+async def persist_storyline_from_timeline(
+    timeline: IncidentTimeline,
+    detection_result: dict | None,
+    user_id: str,
+    cluster_id: str,
+    source_ip: str | None,
 ):
-    replay = build_storyline_replay(
-        context=context,
-        detection_result=detection_result,
-        intelligence_report=intelligence_report,
+    """LLM-only reconstruction; returns None if fingerprint already stored."""
+    if not fingerprint_store.is_new(timeline.fingerprint):
+        return None
+
+    llm_out = await invoke_timeline_llm(timeline)
+    detected_at = timeline.events[-1].get("@timestamp") if timeline.events else None
+    replay = build_storyline_from_timeline_llm(
+        storyline_store.next_id(),
+        llm_out,
+        user_id=user_id,
+        cluster_id=cluster_id,
+        source_ip=source_ip,
         risk_score=risk_engine.calculate_global_risk_score(),
-        sequence_summary=sequence_summary,
-        storyline_id=storyline_store.next_id(),
+        metrics=anomaly_metrics_block(detection_result)
+        if detection_result
+        else {"source": "elasticsearch_correlation"},
+        detected_at_iso=detected_at,
     )
     storyline_store.add(replay)
+    fingerprint_store.add(timeline.fingerprint)
     return replay
+
+
+async def correlation_storyline_worker():
+    """Periodic ES correlation → LLM storyline reconstruction (deduped)."""
+    await asyncio.sleep(15)
+    while True:
+        try:
+            timelines = await fetch_and_cluster_recent_timelines()
+            for tl in timelines:
+                try:
+                    replay = await persist_storyline_from_timeline(
+                        tl,
+                        detection_result=None,
+                        user_id="correlation-worker",
+                        cluster_id="elasticsearch",
+                        source_ip=next(
+                            (e.get("source_ip") for e in tl.events if e.get("source_ip")),
+                            None,
+                        ),
+                    )
+                    if replay:
+                        logger.info("Correlation storyline persisted: %s", replay.storyline_id)
+                except StorylineLLMUnavailable as exc:
+                    logger.warning("Correlation storyline skipped (LLM): %s", exc)
+                except Exception as exc:
+                    logger.error("Correlation worker error: %s", exc)
+        except Exception as exc:
+            logger.error("Correlation sweep failed: %s", exc)
+        await asyncio.sleep(cfg.CORRELATION_POLL_INTERVAL_SECONDS)
+
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Starting ELK telemetry ingestion background task...")
+    asyncio.create_task(poll_elasticsearch())
+    asyncio.create_task(correlation_storyline_worker())
+
 
 @app.post("/api/v1/telemetry/ingest")
 async def ingest_telemetry_window(
-    payload: TelemetryWindow, 
-    rbac_roles: list[str] = Depends(get_current_user_roles)
+    payload: TelemetryWindow,
+    rbac_roles: list[str] = Depends(get_telemetry_ingest_roles),
 ):
     """
     Ingests a 60-event (32-dim) window, runs it through Layer 3 IsolationForest & LSTM-Autoencoder.
@@ -108,38 +169,48 @@ async def ingest_telemetry_window(
         # If normal, return immediately
         if not detection_result["is_anomaly"]:
             return {"status": "normal", "details": detection_result}
-            
-        # Phase 2: Layer 4 Analysis (If Anomalous)
-        logger.warning(f"Anomaly detected for user {payload.user_id}. Engaging Agentic AI Analyst.")
-        
-        # Build context for the agent
-        sequence_summary = "Spike in network discovery followed by admin panel access attempts."
-        context = AnomalyContext(
-            user_id=payload.user_id,
-            cluster_id=payload.cluster_id,
-            rbac_permissions=rbac_roles, # Now auto-extracted from valid JWT
-            mse_score=detection_result["mse"],
-            threshold=detection_result["threshold"],
-            # Extracted heuristically or from actual event logs backing the sequence
-            events_summary=sequence_summary,
-            suspicious_ip="192.168.45.99" # Mocked extraction for demonstration
-        )
-        
-        intelligence_report = await analyst_agent.analyze(context)
-        replay = persist_storyline_from_detection(
-            context=context,
-            detection_result=detection_result,
-            intelligence_report=intelligence_report,
-            sequence_summary=sequence_summary,
-        )
 
-        
-        return {
+        logger.warning("Anomaly detected for user %s — reconstructing ES-backed storyline (LLM required).", payload.user_id)
+
+        sequence_summary = payload.events_summary or (
+            "Behavioral anomaly: elevated reconstruction triggered from neural detection pipeline."
+        )
+        suspicious_ip = payload.suspicious_ip
+
+        es_timeline = await fetch_context_timeline_for_anomaly(
+            suspicious_ip=suspicious_ip,
+            user_name=payload.user_id,
+        )
+        if es_timeline and len(es_timeline.events) >= cfg.CORRELATION_MIN_EVENTS_PER_SESSION:
+            timeline = es_timeline
+        else:
+            timeline = build_minimal_timeline_from_anomaly(
+                correlation_key=f"{payload.cluster_id}|{payload.user_id}|ml-anomaly",
+                user_id=payload.user_id,
+                summary=sequence_summary,
+                suspicious_ip=suspicious_ip or "unknown",
+                detection_snippet=detection_result,
+            )
+
+        try:
+            replay = await persist_storyline_from_timeline(
+                timeline,
+                detection_result,
+                user_id=payload.user_id,
+                cluster_id=payload.cluster_id,
+                source_ip=suspicious_ip,
+            )
+        except StorylineLLMUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+        out = {
             "status": "anomaly_detected",
             "layer_3_metrics": detection_result,
-            "layer_4_intelligence": intelligence_report,
             "storyline_replay": replay,
         }
+        if replay is None:
+            out["storyline_skipped"] = "duplicate_fingerprint"
+        return out
         
     except Exception as e:
         logger.error(f"Error processing telemetry window: {e}")
@@ -156,13 +227,10 @@ class IncidentRegistrationReq(BaseModel):
     incident_level: str # e.g. "P1", "P2", "P3"
 
 
-class DemoStorylineReq(BaseModel):
-    user_id: str = "sec-admin-01"
-    cluster_id: str = "cluster_admin"
-    source_ip: str = "192.168.45.99"
-    summary: str = "Privilege escalation attempt after rapid internal discovery and repeated admin surface probing."
-    target_port: str = "443"
-    cve_entries: list[str] = ["CVE-2024-3094"]
+class StorylineSimulateReq(BaseModel):
+    """Trigger correlation over recent ES data and persist new LLM storylines."""
+
+    window_minutes: int | None = None
 
 @app.post("/api/v1/risk/register_cve")
 async def register_new_cve(payload: NewCVEReq, background_tasks: BackgroundTasks):
@@ -220,43 +288,53 @@ def get_admin_incidents():
 
 
 @app.post("/api/v1/ui/analyst/storylines/simulate")
-async def simulate_storyline_replay(payload: DemoStorylineReq):
-    import numpy as np
+async def simulate_storyline_replay(payload: StorylineSimulateReq):
+    """
+    Scan Elasticsearch for correlated sessions in the time window, run LLM reconstruction
+    for each new fingerprint, and persist storylines.
+    """
+    window = payload.window_minutes if payload.window_minutes is not None else cfg.CORRELATION_WINDOW_MINUTES
+    try:
+        timelines = await fetch_and_cluster_recent_timelines(window_minutes=window)
+    except Exception as exc:
+        logger.exception("Failed to fetch timelines from Elasticsearch")
+        raise HTTPException(status_code=502, detail=f"Elasticsearch correlation failed: {exc}") from exc
 
-    mock_window = np.random.normal(loc=0.25, scale=0.18, size=(60, 32))
-    mock_window[10:15] += 2.8
+    if not timelines:
+        return {
+            "status": "no_sessions",
+            "message": f"No correlated event sessions found in the last {window} minutes (threshold "
+            f"{cfg.CORRELATION_MIN_EVENTS_PER_SESSION}+ events per key).",
+            "created": [],
+            "totals": storyline_store.summary()["totals"],
+        }
 
-    detection_result = anomaly_detector.analyze_sequence(mock_window, cluster_id=payload.cluster_id)
-    if not detection_result["is_anomaly"]:
-        detection_result["is_anomaly"] = True
-        detection_result["mse"] = float(detection_result["threshold"] + 0.24)
-        detection_result["reason"] = (
-            f"MSE {detection_result['mse']:.4f} > Threshold {detection_result['threshold']:.4f}"
-        )
-
-    context = AnomalyContext(
-        user_id=payload.user_id,
-        cluster_id=payload.cluster_id,
-        rbac_permissions=["security-analyst", "incident-responder"],
-        mse_score=detection_result["mse"],
-        threshold=detection_result["threshold"],
-        cve_entries=payload.cve_entries,
-        events_summary=payload.summary,
-        suspicious_ip=payload.source_ip,
-        target_port=payload.target_port,
-    )
-
-    intelligence_report = await analyst_agent.analyze(context)
-    replay = persist_storyline_from_detection(
-        context=context,
-        detection_result=detection_result,
-        intelligence_report=intelligence_report,
-        sequence_summary=payload.summary,
-    )
+    created = []
+    try:
+        for tl in timelines:
+            try:
+                replay = await persist_storyline_from_timeline(
+                    tl,
+                    detection_result=None,
+                    user_id="analyst-simulate",
+                    cluster_id="correlation",
+                    source_ip=next(
+                        (e.get("source_ip") for e in tl.events if e.get("source_ip")),
+                        None,
+                    ),
+                )
+                if replay:
+                    created.append(replay)
+            except StorylineLLMUnavailable as exc:
+                raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except HTTPException:
+        raise
 
     return {
-        "status": "simulated",
-        "storyline_replay": replay,
+        "status": "ok",
+        "window_minutes": window,
+        "created_count": len(created),
+        "created": created,
         "totals": storyline_store.summary()["totals"],
     }
 

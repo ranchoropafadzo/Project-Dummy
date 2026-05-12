@@ -93,18 +93,33 @@ export default function SecurityAnalystPage({ onLogout }) {
 
   const handleSimulateStoryline = async () => {
     setIsSimulating(true)
+    setStorylineError('')
     try {
       const response = await fetch(`${API_BASE}/api/v1/ui/analyst/storylines/simulate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       })
+      const data = await response.json().catch(() => ({}))
       if (!response.ok) {
-        throw new Error(`Simulation failed with status ${response.status}`)
+        const detail = typeof data.detail === 'string' ? data.detail : (data.message || JSON.stringify(data.detail || data))
+        if (response.status === 503) {
+          setStorylineError(`Ollama LLM required for reconstruction: ${detail}`)
+        } else if (response.status === 502) {
+          setStorylineError(`Elasticsearch correlation failed: ${detail}`)
+        } else {
+          setStorylineError(`Simulation failed (${response.status}): ${detail}`)
+        }
+        return
+      }
+      if (data.status === 'no_sessions') {
+        setStorylineError(data.message || 'No correlated sessions in Elasticsearch for this window.')
+      } else {
+        setStorylineError('')
       }
       await loadStorylines()
     } catch (error) {
-      setStorylineError('Simulation failed. Ensure backend services are running, then retry.')
+      setStorylineError('Simulation failed. Ensure backend, Elasticsearch, and Ollama are running.')
     } finally {
       setIsSimulating(false)
     }
