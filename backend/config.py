@@ -28,6 +28,23 @@ ELASTICSEARCH_INDEX: str = os.getenv("ELASTICSEARCH_INDEX", "winlogbeat-*")
 ELASTICSEARCH_POLL_INTERVAL_SECONDS: int = int(os.getenv("ES_POLL_INTERVAL", "30"))
 ELASTICSEARCH_WINDOW_MINUTES: int = int(os.getenv("ES_WINDOW_MINUTES", "30"))
 
+# Incident correlation + storyline reconstruction
+CORRELATION_WINDOW_MINUTES: int = int(os.getenv("CORRELATION_WINDOW_MINUTES", "45"))
+CORRELATION_POLL_INTERVAL_SECONDS: int = int(os.getenv("CORRELATION_POLL_INTERVAL_SECONDS", "45"))
+CORRELATION_MAX_EVENTS_PER_INCIDENT: int = int(os.getenv("CORRELATION_MAX_EVENTS_PER_INCIDENT", "80"))
+CORRELATION_MIN_EVENTS_PER_SESSION: int = int(os.getenv("CORRELATION_MIN_EVENTS_PER_SESSION", "4"))
+OLLAMA_STORYLINE_TIMEOUT_SECONDS: float = float(os.getenv("OLLAMA_STORYLINE_TIMEOUT_SECONDS", "120"))
+
+# Legacy `/api/v1/intelligence/analyze` may use mock when LLM fails (set false for strict lab)
+ALLOW_MOCK_INTELLIGENCE: bool = os.getenv("ALLOW_MOCK_INTELLIGENCE", "true").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+# Optional shared secret so ELK poller can call telemetry ingest without Keycloak JWT
+INTERNAL_INGEST_TOKEN: str = os.getenv("INTERNAL_INGEST_TOKEN", "")
+
 # ─── Architecture ────────────────────────────────────────────────────────────
 TELEMETRY_INGEST_URL: str = os.getenv(
     "TELEMETRY_INGEST_URL",

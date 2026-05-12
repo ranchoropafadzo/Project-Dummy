@@ -5,17 +5,14 @@ from elasticsearch import AsyncElasticsearch
 import httpx
 import config as cfg
 
+from core.feature_extraction import extract_feature_vector_from_hit
+
 logger = logging.getLogger("ELKIngestor")
 
-# 1. Dummy mock for a real 32-dim feature extractor
-def extract_feature_vector(es_events: list) -> list:
-    """
-    Transforms raw Elasticsearch events into the 32-dimensional input vector.
-    Features: Temporal(4), Event Type(6), Network(6), File Access(5), Identity(5), System Context(6)
-    """
-    # In a real implementation we would parse actual winlogbeat JSON fields.
-    # Here we mock the 32-dim array to satisfy the neural network shape.
-    return [0.5] * 32 
+
+def extract_feature_vector(hit: dict) -> list:
+    """Transforms one Elasticsearch hit into a 32-dimensional input vector (ECS / Winlogbeat)."""
+    return extract_feature_vector_from_hit(hit)
 
 async def poll_elasticsearch():
     """
@@ -78,7 +75,15 @@ async def poll_elasticsearch():
                             }
                             
                             # Push to core engine
-                            res = await http_client.post(cfg.TELEMETRY_INGEST_URL, json=payload, timeout=5.0)
+                            headers = {}
+                            if cfg.INTERNAL_INGEST_TOKEN:
+                                headers["X-Internal-Ingest-Token"] = cfg.INTERNAL_INGEST_TOKEN
+                            res = await http_client.post(
+                                cfg.TELEMETRY_INGEST_URL,
+                                json=payload,
+                                timeout=5.0,
+                                headers=headers,
+                            )
                             if res.status_code == 200:
                                 logger.info(f"Successfully ingested 60-event window for {user_id}")
                             else:

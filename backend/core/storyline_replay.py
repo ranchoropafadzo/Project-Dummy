@@ -18,6 +18,19 @@ class StorylineStep(BaseModel):
     status: str = "completed"
 
 
+class TimelineStorylineLLM(BaseModel):
+    """Strict JSON output from the LLM for autonomous incident reconstruction."""
+
+    threat_label: str
+    severity: str
+    summary: str
+    mitre_tactic: str
+    confidence: float
+    remediation_steps: List[str] = Field(default_factory=list)
+    suggested_firewall_rules: List[str] = Field(default_factory=list)
+    steps: List[StorylineStep] = Field(default_factory=list)
+
+
 class StorylineReplay(BaseModel):
     storyline_id: str
     title: str
@@ -62,6 +75,56 @@ def _severity_from_ratio(severity_ratio: float) -> str:
 
 def _iso(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).isoformat()
+
+
+def _normalize_severity(raw: str) -> str:
+    s = (raw or "").lower().strip()
+    if s in ("critical", "high", "medium", "low"):
+        return s
+    return "medium"
+
+
+def build_storyline_from_timeline_llm(
+    storyline_id: str,
+    llm_out: TimelineStorylineLLM,
+    *,
+    user_id: str,
+    cluster_id: str,
+    source_ip: str | None,
+    risk_score: float,
+    metrics: dict | None = None,
+    detected_at_iso: str | None = None,
+) -> StorylineReplay:
+    """Build persisted storyline from LLM reconstruction output (non-template steps)."""
+    sev = _normalize_severity(llm_out.severity)
+    detected_at = detected_at_iso or datetime.now(timezone.utc).isoformat()
+    risk_delta = round(min(24.0, 4.0 + float(llm_out.confidence or 0.5) * 18.0), 1)
+    tact_id = llm_out.mitre_tactic.split(" - ")[0].strip() if llm_out.mitre_tactic else "TBD"
+
+    return StorylineReplay(
+        storyline_id=storyline_id,
+        title=llm_out.threat_label,
+        severity=sev,
+        status="open",
+        summary=llm_out.summary,
+        detected_at=detected_at,
+        user_id=user_id,
+        cluster_id=cluster_id,
+        source_ip=source_ip,
+        mitre_tactic=llm_out.mitre_tactic,
+        confidence=round(float(llm_out.confidence), 2),
+        risk_delta=risk_delta,
+        recommended_actions=list(llm_out.remediation_steps),
+        containment_actions=list(llm_out.suggested_firewall_rules),
+        tags=[
+            sev.upper(),
+            cluster_id,
+            tact_id,
+            "llm-reconstructed",
+        ],
+        metrics=metrics or {},
+        steps=list(llm_out.steps),
+    )
 
 
 def build_storyline_replay(
