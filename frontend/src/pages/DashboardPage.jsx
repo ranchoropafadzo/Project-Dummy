@@ -1281,7 +1281,7 @@ const makeStyles = (dm) => ({
     height: '100vh',
     overflow: 'hidden',
     fontFamily: "'Inter', 'Segoe UI', sans-serif",
-    background: dm ? '#0f172a' : '#f1f5f9',
+    background: dm ? '#0f172a' : '#ffffff',
   },
   sidebar: {
     width: '260px',
@@ -1449,7 +1449,7 @@ const makeStyles = (dm) => ({
     color: dm ? '#64748b' : '#9ca3af',
   },
   themeToggle: {
-    background: dm ? '#1e293b' : '#f1f5f9',
+    background: dm ? '#1e293b' : '#f8fafc',
     border: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
     borderRadius: '8px',
     cursor: 'pointer',

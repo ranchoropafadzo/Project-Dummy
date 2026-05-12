@@ -6,6 +6,21 @@ const NAV_ITEMS = [
   { id: 'maintenance', label: 'Maintenance' },
 ];
 
+const PAGE_HEADERS = {
+  'operational-status': {
+    title: 'Operational Status',
+    subtitle: 'Service Health Monitoring — Operational Insight',
+  },
+  'assigned-incidents': {
+    title: 'Assigned Incidents',
+    subtitle: 'Incident Response Support — Operational Scope',
+  },
+  maintenance: {
+    title: 'Maintenance',
+    subtitle: 'Scheduled Maintenance Tasks',
+  },
+};
+
 export default function ITTechnicianPage({ onLogout }) {
   const [activePage, setActivePage] = useState('operational-status');
   const [darkMode, setDarkMode] = useState(false);
@@ -66,12 +81,10 @@ export default function ITTechnicianPage({ onLogout }) {
       {/* ── Main ── */}
       <main style={styles.main}>
         {/* Page Header */}
-        <div style={styles.headerContainer}>
+        <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}`, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
           <div>
-            <h1 style={styles.pageTitle}>IT Technician</h1>
-            <p style={styles.pageSubtitle}>
-              Operational Dashboard — Service Health Monitoring
-            </p>
+            <h1 style={{ ...styles.pageTitle, margin: '0 0 4px 0' }}>{PAGE_HEADERS[activePage].title}</h1>
+            <p style={styles.pageSubtitle}>{PAGE_HEADERS[activePage].subtitle}</p>
           </div>
           <div style={styles.headerRight}>
             <button
@@ -173,6 +186,38 @@ export default function ITTechnicianPage({ onLogout }) {
               </div>
             </section>
           </>
+        )}
+
+        {activePage === 'assigned-incidents' && (
+          <section style={styles.statusSection}>
+            <div style={styles.sectionHeader}>
+              <div>
+                <h2 style={styles.sectionTitle}>My Tickets</h2>
+              </div>
+            </div>
+
+            <div style={styles.card}>
+              <p style={{ color: dm ? '#cbd5e1' : '#475569', margin: 0, fontSize: '15px' }}>
+                No incident details are shown yet. Assigned incidents will appear here once tasks are assigned.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {activePage === 'maintenance' && (
+          <section style={styles.statusSection}>
+            <div style={styles.sectionHeader}>
+              <div>
+                <h2 style={styles.sectionTitle}>Pending Tasks</h2>
+              </div>
+            </div>
+
+            <div style={styles.card}>
+              <p style={{ color: dm ? '#cbd5e1' : '#475569', margin: 0, fontSize: '15px' }}>
+                No maintenance tasks are available yet. This page will display scheduled assignments once they are created.
+              </p>
+            </div>
+          </section>
         )}
       </main>
     </div>
