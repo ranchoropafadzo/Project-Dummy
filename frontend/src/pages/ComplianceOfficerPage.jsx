@@ -76,7 +76,7 @@ export default function ComplianceOfficerPage({ onLogout }) {
                   ...(activePage === item.id ? styles.navItemActive : {}),
                 }}
               >
-                <span style={{ color: activePage === item.id ? (dm ? '#93c5fd' : '#1a237e') : (dm ? '#94a3b8' : '#6b7280') }}>
+                <span style={{ color: activePage === item.id ? 'white' : (dm ? '#94a3b8' : '#6b7280') }}>
                   {item.icon}
                 </span>
                 <span style={{ flex: 1 }}>{item.label}</span>
@@ -152,7 +152,7 @@ export default function ComplianceOfficerPage({ onLogout }) {
             {FRAMEWORKS.map(({ id, label, color, trackColor, hasCritical }) => (
               <div key={id} style={styles.frameworkCard}>
                 <span style={styles.frameworkLabel}>{label}</span>
-                <div style={{ fontSize: '52px', fontWeight: '800', color, lineHeight: '1.1', margin: '8px 0' }}>—%</div>
+                <div style={{ fontSize: '35px', fontWeight: '800', color, lineHeight: '1.1', margin: '8px 0' }}>—%</div>
                 {/* Progress bar */}
                 <div style={{ ...styles.progressTrack, background: dm ? '#334155' : trackColor }}>
                   <div style={{ ...styles.progressBar, background: color, width: '0%' }} />
@@ -360,17 +360,17 @@ const makeStyles = (dm) => ({
     minWidth: '260px',
     height: '100vh',
     background: dm ? '#1e293b' : 'white',
-    borderRight: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
+    borderRight: `1px solid ${dm ? '#334155' : '#f3f4f6'}`,
     display: 'flex',
     flexDirection: 'column',
-    padding: '24px 0 20px',
+    padding: '32px 0 20px',
     flexShrink: 0,
     boxSizing: 'border-box',
   },
   sidebarTop: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '28px',
+    gap: '40px',
     flex: 1,
   },
   brandRow: {
@@ -395,8 +395,8 @@ const makeStyles = (dm) => ({
     flexShrink: 0,
   },
   brandName: {
-    fontSize: '16px',
-    fontWeight: '700',
+    fontSize: '24px',
+    fontWeight: '800',
     color: dm ? '#f1f5f9' : '#111827',
   },
   menuBtn: {
@@ -418,21 +418,22 @@ const makeStyles = (dm) => ({
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    padding: '11px 12px',
-    borderRadius: '8px',
+    padding: '14px 20px',
+    borderRadius: '12px',
     border: 'none',
     background: 'transparent',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: '500',
     color: dm ? '#94a3b8' : '#6b7280',
     textAlign: 'left',
     width: '100%',
   },
   navItemActive: {
-    background: dm ? '#1e3a5f' : '#eff6ff',
-    color: dm ? '#93c5fd' : '#1a237e',
+    background: dm ? '#3b82f6' : '#0f172a',
+    color: 'white',
     fontWeight: '600',
+    boxShadow: dm ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.15)',
   },
   profile: {
     display: 'flex',
@@ -464,12 +465,12 @@ const makeStyles = (dm) => ({
     letterSpacing: '0.5px',
   },
   profileName: {
-    fontSize: '13px',
+    fontSize: '14px',
     fontWeight: '600',
     color: dm ? '#f1f5f9' : '#111827',
   },
   profileRole: {
-    fontSize: '11px',
+    fontSize: '12px',
     color: dm ? '#64748b' : '#9ca3af',
   },
   logoutBtn: {
@@ -486,10 +487,10 @@ const makeStyles = (dm) => ({
   main: {
     flex: 1,
     height: '100vh',
-    padding: '28px 36px 0',
+    padding: '40px 48px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '32px',
     overflowY: 'auto',
     background: dm ? '#0f172a' : '#f1f5f9',
   },
@@ -504,13 +505,15 @@ const makeStyles = (dm) => ({
     gap: '12px',
   },
   pageTitle: {
-    fontSize: '26px',
-    fontWeight: '700',
+    fontSize: '20px',
+    fontWeight: '800',
     color: dm ? '#f1f5f9' : '#111827',
     margin: '0 0 6px 0',
+    letterSpacing: '-0.5px',
   },
   pageSubtitle: {
-    fontSize: '14px',
+    fontSize: '16px',
+    fontWeight: '400',
     color: dm ? '#94a3b8' : '#6b7280',
     margin: 0,
   },
@@ -532,7 +535,7 @@ const makeStyles = (dm) => ({
   },
   frameworkCard: {
     background: dm ? '#1e293b' : 'white',
-    borderRadius: '16px',
+    borderRadius: '20px',
     padding: '24px 28px',
     display: 'flex',
     flexDirection: 'column',
@@ -583,17 +586,17 @@ const makeStyles = (dm) => ({
   },
   card: {
     background: dm ? '#1e293b' : 'white',
-    borderRadius: '16px',
-    padding: '20px 24px',
+    borderRadius: '20px',
+    padding: '28px 24px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '16px',
     boxShadow: dm ? '0 1px 4px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.05)',
     border: `1px solid ${dm ? '#334155' : '#f3f4f6'}`,
   },
   cardLabel: {
-    fontSize: '11px',
-    fontWeight: '700',
+    fontSize: '13px',
+    fontWeight: '600',
     letterSpacing: '0.8px',
     textTransform: 'uppercase',
   },
@@ -615,14 +618,16 @@ const makeStyles = (dm) => ({
   table: { width: '100%', borderCollapse: 'collapse' },
   th: {
     textAlign: 'left',
-    fontSize: '13px',
-    fontWeight: '500',
+    fontSize: '12px',
+    fontWeight: '700',
     color: dm ? '#94a3b8' : '#6b7280',
-    padding: '10px 16px',
+    padding: '14px 16px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.8px',
     borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}`,
   },
   td: {
-    padding: '14px 16px',
+    padding: '16px',
     fontSize: '14px',
     color: dm ? '#94a3b8' : '#6b7280',
     borderBottom: `1px solid ${dm ? '#334155' : '#f3f4f6'}`,

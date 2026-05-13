@@ -230,7 +230,7 @@ const makeStyles = (dm) => ({
     height: '100vh',
     overflow: 'hidden',
     fontFamily: "'Inter', 'Segoe UI', sans-serif",
-    background: dm ? '#0f172a' : '#ffffff',
+    background: dm ? '#0f172a' : '#f1f5f9',
   },
   sidebar: {
     width: '260px',
@@ -361,7 +361,7 @@ const makeStyles = (dm) => ({
     gap: '16px',
   },
   pageTitle: {
-    fontSize: '36px',
+    fontSize: '20px',
     fontWeight: '800',
     color: dm ? '#f8fafc' : '#0f172a',
     margin: '0 0 8px 0',
@@ -393,7 +393,7 @@ const makeStyles = (dm) => ({
   statusSection: {
     marginTop: '32px',
     padding: '28px',
-    background: dm ? '#111827' : '#f9fafb',
+    background: dm ? '#111827' : '#ffffff',
     border: `1px solid ${dm ? '#374151' : '#e5e7eb'}`,
     borderRadius: '24px',
   },
@@ -456,12 +456,13 @@ const makeStyles = (dm) => ({
     fontSize: '13px',
   },
   card: {
+    background: dm ? '#1e293b' : '#ffffff',
     borderRadius: '20px',
     padding: '28px 24px',
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
-    boxShadow: dm ? 'none' : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+    boxShadow: dm ? 'none' : '0 1px 3px rgba(0,0,0,0.08)',
   },
   cardLabel: {
     fontSize: '13px',
@@ -470,7 +471,7 @@ const makeStyles = (dm) => ({
     textTransform: 'uppercase',
   },
   cardValue: {
-    fontSize: '56px',
+    fontSize: '35px',
     fontWeight: '800',
     lineHeight: '1',
     letterSpacing: '-1px',
