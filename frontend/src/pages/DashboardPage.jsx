@@ -897,7 +897,7 @@ export default function DashboardPage({ onLogout }) {
         {/* ── BACKUP STATUS PAGE ── */}
         {activePage === 'backup' && <>
           <div style={styles.cardGrid}>
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <span style={styles.cardLabel}>JOBS VERIFIED</span>
               <div style={styles.splitValue}>
                 <span style={{ color: '#16a34a', fontSize: '34px', fontWeight: '800' }}>—</span>
@@ -907,19 +907,19 @@ export default function DashboardPage({ onLogout }) {
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>— require attention</div>
             </div>
 
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
               <span style={styles.cardLabel}>FAILED JOBS</span>
               <div style={{ fontSize: '34px', fontWeight: '800', color: '#ef4444', lineHeight: '1' }}>—</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>— ago</div>
             </div>
 
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <span style={styles.cardLabel}>TOTAL BACKUP SIZE</span>
               <div style={{ fontSize: '34px', fontWeight: '800', color: '#0891b2', lineHeight: '1' }}>— GB</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>Across all destinations</div>
             </div>
 
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
               <span style={styles.cardLabel}>NEXT FULL BACKUP</span>
               <div style={{ fontSize: '34px', fontWeight: '800', color: '#f59e0b', lineHeight: '1' }}>--:--</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>In — h —m</div>
@@ -1000,22 +1000,22 @@ export default function DashboardPage({ onLogout }) {
         {/* ── ACCESS CONTROL PAGE ── */}
         {activePage === 'access' && !managingRole && <>
           <div style={styles.cardGrid}>
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <span style={styles.cardLabel}>TOTAL USERS</span>
               <div style={{ fontSize: '34px', fontWeight: '800', color: '#0891b2', lineHeight: '1' }}>—</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>Active accounts</div>
             </div>
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
               <span style={styles.cardLabel}>MFA ENABLED</span>
               <div style={{ fontSize: '34px', fontWeight: '800', color: '#f59e0b', lineHeight: '1' }}>—</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>—% adoption rate</div>
             </div>
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <span style={styles.cardLabel}>PENDING APPROVALS</span>
               <div style={{ fontSize: '34px', fontWeight: '800', color: '#f97316', lineHeight: '1' }}>—</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>Elevated permission requests</div>
             </div>
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
               <span style={styles.cardLabel}>PAM SESSIONS</span>
               <div style={{ fontSize: '34px', fontWeight: '800', color: '#7c3aed', lineHeight: '1' }}>—</div>
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>Active privileged session</div>
@@ -1058,7 +1058,7 @@ export default function DashboardPage({ onLogout }) {
           <div style={styles.chartCard}>
             <div style={styles.chartHeader}><span style={styles.chartTitle}>OPEN &amp; ACTIVE INCIDENTS</span></div>
             <div style={styles.incidentList}>
-              {(incidentData.incidents || []).map(({ title, incident_id, storyline_id, assigned, status, severity, sla_label, source_ip }, i, arr) => (
+              {false && (incidentData.incidents || []).map(({ title, incident_id, storyline_id, assigned, status, severity, sla_label, source_ip }, i, arr) => (
                 <div key={incident_id} style={{ ...styles.incidentRow, borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#334155' : '#f3f4f6'}` : 'none' }}>
                   <div style={styles.incidentLeft}>
                     <span style={{ ...styles.incidentDot, background: severity === 'critical' ? '#ef4444' : severity === 'high' ? '#f97316' : '#f59e0b' }} />
@@ -1076,11 +1076,9 @@ export default function DashboardPage({ onLogout }) {
                   </div>
                 </div>
               ))}
-              {!incidentData.incidents?.length && (
-                <div style={{ padding: '20px 0', color: dm ? '#94a3b8' : '#6b7280', fontSize: '14px' }}>
-                  No replay-driven incidents yet. Generate an attack storyline from the analyst console to populate this queue.
-                </div>
-              )}
+              <div style={{ padding: '24px 0', color: dm ? '#94a3b8' : '#6b7280', fontSize: '14px' }}>
+                No incidents to display. Incident data will appear here once the system is operational.
+              </div>
               {false && [
                 { title: 'Brute-force on admin account', id: 'INC-0041', assigned: 'analyst_01', dot: '#ef4444', status: 'open', severity: 'critical' },
                 { title: 'Email archive backup failure', id: 'INC-0040', assigned: 'tech_02', dot: '#f97316', status: 'in-progress', severity: 'high' },

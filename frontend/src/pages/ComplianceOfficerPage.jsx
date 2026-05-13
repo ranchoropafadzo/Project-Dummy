@@ -262,38 +262,8 @@ export default function ComplianceOfficerPage({ onLogout }) {
             <div style={{ fontSize: '12px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '0.8px', marginBottom: '4px' }}>
               — ACTIVE FINDINGS
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {[
-                { title: 'MFA not enforced for all privileged accounts',              meta: 'F-031 • ISO 27001 • A.9.4 System Access',                  dot: '#ef4444', badge: styles.findingCritical, label: 'CRITICAL' },
-                { title: 'Data retention policy not applied to MongoDB log collection', meta: 'F-030 • GDPR • Art. 32 Security of Processing',              dot: '#f97316', badge: styles.findingHigh,     label: 'HIGH'     },
-                { title: 'Email archive backup failure exceeds 24h SLA',              meta: 'F-029 • ISO 27001 • A.12.3 Backup',                         dot: '#f97316', badge: styles.findingHigh,     label: 'HIGH'     },
-                { title: 'Incident response drill not completed this quarter',         meta: 'F-028 • POPIA • Condition 7 - Security Safeguards',           dot: '#f59e0b', badge: styles.findingMedium,   label: 'MEDIUM'   },
-                { title: 'Processing activity register outdated by 3 months',         meta: 'F-027 • GDPR • Art. 30 Records of Processing',                dot: '#f59e0b', badge: styles.findingMedium,   label: 'MEDIUM'   },
-              ].map(({ title, meta, dot, badge, label }, i, arr) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '20px 0',
-                    borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#334155' : '#f3f4f6'}` : 'none',
-                    gap: '16px',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', flex: 1, minWidth: 0 }}>
-                    <span style={{ width: '11px', height: '11px', borderRadius: '50%', background: dot, flexShrink: 0, marginTop: '4px' }} />
-                    <div>
-                      <div style={{ fontSize: '15px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827', marginBottom: '5px' }}>{title}</div>
-                      <div style={{ fontSize: '13px', color: dm ? '#64748b' : '#9ca3af' }}>{meta}</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
-                    <span style={badge}>{label}</span>
-                    <span style={{ fontSize: '13px', color: dm ? '#64748b' : '#9ca3af' }}>Due: —</span>
-                  </div>
-                </div>
-              ))}
+            <div style={{ padding: '24px 0', color: dm ? '#94a3b8' : '#6b7280', fontSize: '14px' }}>
+              No findings to display. Finding data will appear here once the system is operational.
             </div>
           </div>
         )}
@@ -304,40 +274,9 @@ export default function ComplianceOfficerPage({ onLogout }) {
             <div style={{ fontSize: '12px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '0.8px', marginBottom: '16px' }}>
               ACTIVE POLICY RULES
             </div>
-            {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1.2fr', padding: '0 0 10px', borderBottom: `1px solid ${dm ? '#334155' : '#e5e7eb'}`, marginBottom: '4px' }}>
-              {['POLICY NAME', 'FRAMEWORKS', 'STATUS', 'LAST UPDATED'].map((col) => (
-                <span key={col} style={{ fontSize: '11px', fontWeight: '700', color: dm ? '#64748b' : '#9ca3af', letterSpacing: '0.6px' }}>{col}</span>
-              ))}
+            <div style={{ padding: '24px 0', color: dm ? '#94a3b8' : '#6b7280', fontSize: '14px' }}>
+              No policy rules to display. Policy data will appear here once the system is operational.
             </div>
-            {/* Rows */}
-            {[
-              { name: 'Data Retention Policy',   frameworks: [{ label: 'GDPR', style: 'fwGdpr' }, { label: 'POPIA', style: 'fwPopia' }],                  status: 'active', statusStyle: 'policyActive' },
-              { name: 'MFA Enforcement Rule',     frameworks: [{ label: 'ISO 27001', style: 'fwIso' }],                                                    status: 'active', statusStyle: 'policyActive' },
-              { name: 'Incident Response SLA',    frameworks: [{ label: 'ISO 27001', style: 'fwIso' }, { label: 'GDPR', style: 'fwGdpr' }],                status: 'active', statusStyle: 'policyActive' },
-              { name: 'Log Retention (12m)',      frameworks: [{ label: 'POPIA', style: 'fwPopia' }, { label: 'ISO 27001', style: 'fwIso' }],              status: 'active', statusStyle: 'policyActive' },
-              { name: 'Backup Verification Rule', frameworks: [{ label: 'ISO 27001', style: 'fwIso' }],                                                    status: 'review', statusStyle: 'policyReview' },
-            ].map(({ name, frameworks, status, statusStyle }, i, arr) => (
-              <div
-                key={i}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 2fr 1fr 1.2fr',
-                  alignItems: 'center',
-                  padding: '18px 0',
-                  borderBottom: i < arr.length - 1 ? `1px solid ${dm ? '#334155' : '#f3f4f6'}` : 'none',
-                }}
-              >
-                <span style={{ fontSize: '15px', fontWeight: '700', color: dm ? '#f1f5f9' : '#111827' }}>{name}</span>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {frameworks.map(({ label, style }) => (
-                    <span key={label} style={styles[style]}>{label}</span>
-                  ))}
-                </div>
-                <span style={styles[statusStyle]}>{status}</span>
-                <span style={{ fontSize: '14px', color: dm ? '#94a3b8' : '#6b7280' }}>—</span>
-              </div>
-            ))}
           </div>
         )}
 
