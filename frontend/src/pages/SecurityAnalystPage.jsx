@@ -231,7 +231,7 @@ export default function SecurityAnalystPage({ onLogout }) {
         {activePage === 'events' && <>
           {/* 4 Stat Cards */}
           <div style={styles.cardGrid4}>
-            <div style={{ ...styles.card, background: dm ? '#2d1a1a' : '#fff5f5', border: `1px solid ${dm ? '#7f1d1d' : '#fecaca'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce7'}` }}>
               <div style={styles.cardHeader}>
                 <span style={{ ...styles.cardLabel, color: dm ? '#fca5a5' : '#9b1c1c' }}>CRITICAL ALERTS</span>
                 <div style={{ ...styles.iconBadge, background: dm ? '#450a0a' : '#fee2e2' }}>
@@ -259,7 +259,7 @@ export default function SecurityAnalystPage({ onLogout }) {
               <div style={{ fontSize: '13px', color: dm ? '#fcd34d' : '#92400e' }}>From external IPs</div>
             </div>
 
-            <div style={{ ...styles.card, background: dm ? '#1e1030' : '#faf5ff', border: `1px solid ${dm ? '#4c1d95' : '#e9d5ff'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <div style={styles.cardHeader}>
                 <span style={{ ...styles.cardLabel, color: dm ? '#c4b5fd' : '#5b21b6' }}>FILES QUARANTINED</span>
                 <div style={{ ...styles.iconBadge, background: dm ? '#2e1065' : '#f3e8ff' }}>
@@ -273,7 +273,7 @@ export default function SecurityAnalystPage({ onLogout }) {
               <div style={{ fontSize: '13px', color: dm ? '#c4b5fd' : '#5b21b6' }}>Awaiting review</div>
             </div>
 
-            <div style={{ ...styles.card, background: dm ? '#0a1f2d' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#a5f3fc'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
               <div style={styles.cardHeader}>
                 <span style={{ ...styles.cardLabel, color: dm ? '#67e8f9' : '#155e75' }}>EVENTS (24H)</span>
                 <div style={{ ...styles.iconBadge, background: dm ? '#082f49' : '#cffafe' }}>
@@ -334,17 +334,17 @@ export default function SecurityAnalystPage({ onLogout }) {
         {activePage === 'file-access' && <>
           {/* 3 Stat Cards */}
           <div style={styles.cardGrid3}>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <span style={{ ...styles.cardLabel, color: dm ? '#64748b' : '#9ca3af' }}>FILES QUARANTINED</span>
               <div style={{ ...styles.cardValue, color: '#ef4444' }}>—</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Today</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#2d1f0a' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fde68a'}` }}>
               <span style={{ ...styles.cardLabel, color: dm ? '#64748b' : '#9ca3af' }}>FLAGGED EVENTS</span>
               <div style={{ ...styles.cardValue, color: '#f97316' }}>—</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Pending analyst review</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#f3f4f6'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce7'}` }}>
               <span style={{ ...styles.cardLabel, color: dm ? '#64748b' : '#9ca3af' }}>CLAMAV SCANS</span>
               <div style={{ ...styles.cardValue, color: '#16a34a' }}>—</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Today, — positive</div>
@@ -387,22 +387,22 @@ export default function SecurityAnalystPage({ onLogout }) {
         {/* ── LOGIN MONITOR PAGE ── */}
         {activePage === 'login-monitor' && <>
           <div style={styles.cardGrid4}>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce7'}` }}>
               <span style={{ ...styles.cardLabel, color: '#0891b2' }}>LOGINS (24H)</span>
               <div style={{ ...styles.cardValue, color: '#16a34a' }}>—</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Successful</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
               <span style={{ ...styles.cardLabel, color: '#0891b2' }}>FAILURES (24H)</span>
               <div style={{ ...styles.cardValue, color: '#ef4444' }}>—</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>—% failure rate</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <span style={{ ...styles.cardLabel, color: '#0891b2' }}>LOCKOUTS</span>
               <div style={{ ...styles.cardValue, color: '#f97316' }}>—</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Accounts locked today</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
               <span style={{ ...styles.cardLabel, color: '#0891b2' }}>GEO ANOMALIES</span>
               <div style={{ ...styles.cardValue, color: '#f97316' }}>—</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Login from unusual regions</div>
@@ -461,10 +461,10 @@ export default function SecurityAnalystPage({ onLogout }) {
         {activePage === 'threat-intel' && <>
           <div style={styles.cardGrid4}>
             {[
-              { label: 'ACTIVE IOCs',       color: '#ef4444', tint: dm ? '#2d1a1a' : '#fff5f5', border: dm ? '#7f1d1d' : '#fecaca', sub: 'Indicators of compromise' },
-              { label: 'NEW CVEs (7D)',      color: '#f97316', tint: dm ? '#2d1f0a' : '#fffbeb', border: dm ? '#78350f' : '#fde68a', sub: 'Matching our stack' },
-              { label: 'THREAT FEEDS',      color: '#06b6d4', tint: dm ? '#0a1f2d' : '#ecfeff', border: dm ? '#164e63' : '#a5f3fc', sub: 'Active integrations' },
-              { label: 'BLOCKED IPs',       color: '#7c3aed', tint: dm ? '#1e1030' : '#faf5ff', border: dm ? '#4c1d95' : '#e9d5ff', sub: 'Auto-blocked today' },
+              { label: 'ACTIVE IOCs',       color: '#ef4444', tint: dm ? '#064e3b' : '#f0fdf4', border: dm ? '#065f46' : '#dcfce7', sub: 'Indicators of compromise' },
+              { label: 'NEW CVEs (7D)',      color: '#f97316', tint: dm ? '#451a03' : '#fffbeb', border: dm ? '#78350f' : '#fef3c7', sub: 'Matching our stack' },
+              { label: 'THREAT FEEDS',      color: '#06b6d4', tint: dm ? '#064e3b' : '#f0fdf4', border: dm ? '#065f46' : '#dcfce3', sub: 'Active integrations' },
+              { label: 'BLOCKED IPs',       color: '#7c3aed', tint: dm ? '#083344' : '#ecfeff', border: dm ? '#164e63' : '#cffafe', sub: 'Auto-blocked today' },
             ].map(({ label, color, tint, border, sub }) => (
               <div key={label} style={{ ...styles.card, background: tint, border: `1px solid ${border}` }}>
                 <span style={{ ...styles.cardLabel, color }}>{label}</span>
@@ -504,22 +504,22 @@ export default function SecurityAnalystPage({ onLogout }) {
         {/* ── ATTACK STORYLINE PAGE ── */}
         {activePage === 'attack-storyline' && <>
           <div style={styles.cardGrid4}>
-            <div style={{ ...styles.card, background: dm ? '#1e293b' : 'white', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce7'}` }}>
               <span style={{ ...styles.cardLabel, color: '#0891b2' }}>OPEN STORYLINES</span>
               <div style={{ ...styles.cardValue, color: '#06b6d4' }}>{storylineData.totals?.open ?? 0}</div>
               <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Active replay investigations</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#2d1a1a' : '#fff5f5', border: `1px solid ${dm ? '#7f1d1d' : '#fecaca'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
               <span style={{ ...styles.cardLabel, color: dm ? '#fca5a5' : '#9b1c1c' }}>CRITICAL CHAINS</span>
               <div style={{ ...styles.cardValue, color: '#ef4444' }}>{storylineData.totals?.critical ?? 0}</div>
               <div style={{ fontSize: '13px', color: dm ? '#fca5a5' : '#9b1c1c' }}>High-priority incident narratives</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#0a1f2d' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#a5f3fc'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <span style={{ ...styles.cardLabel, color: dm ? '#67e8f9' : '#155e75' }}>AUTO CONTAINMENT</span>
               <div style={{ ...styles.cardValue, color: '#06b6d4' }}>{storylineData.totals?.blocked_ips ?? 0}</div>
               <div style={{ fontSize: '13px', color: dm ? '#67e8f9' : '#155e75' }}>Firewall actions suggested</div>
             </div>
-            <div style={{ ...styles.card, background: dm ? '#1e1030' : '#faf5ff', border: `1px solid ${dm ? '#4c1d95' : '#e9d5ff'}` }}>
+            <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
               <span style={{ ...styles.cardLabel, color: dm ? '#c4b5fd' : '#5b21b6' }}>AVG CONFIDENCE</span>
               <div style={{ ...styles.cardValue, color: '#7c3aed' }}>{Math.round((storylineData.totals?.avg_confidence ?? 0) * 100)}%</div>
               <div style={{ fontSize: '13px', color: dm ? '#c4b5fd' : '#5b21b6' }}>Agent confidence score</div>

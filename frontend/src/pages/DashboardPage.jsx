@@ -1112,7 +1112,7 @@ export default function DashboardPage({ onLogout }) {
         {/* ── RISK OVERVIEW PAGE ── */}
         {activePage === 'risk' && <>
           <div style={styles.cardGrid}>
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
               <div style={styles.cardHeader}>
                 <span style={styles.cardLabel}>OVERALL RISK SCORE</span>
                 <div style={{ ...styles.iconBadge, background: '#fff7ed', border: '1px solid #fed7aa' }}>
@@ -1129,7 +1129,7 @@ export default function DashboardPage({ onLogout }) {
               </div>
             </div>
 
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
               <div style={styles.cardHeader}>
                 <span style={styles.cardLabel}>CRITICAL VULNS</span>
                 <div style={{ ...styles.iconBadge, background: '#fff1f2', border: '1px solid #fecdd3' }}>
@@ -1143,7 +1143,7 @@ export default function DashboardPage({ onLogout }) {
               <div style={{ ...styles.cardMeta, color: dm ? '#94a3b8' : '#6b7280' }}>Requires immediate action</div>
             </div>
 
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce7'}` }}>
               <div style={styles.cardHeader}>
                 <span style={styles.cardLabel}>ACTIVE INCIDENTS</span>
                 <div style={{ ...styles.iconBadge, background: '#fff7ed', border: '1px solid #fed7aa' }}>
@@ -1160,7 +1160,7 @@ export default function DashboardPage({ onLogout }) {
               </div>
             </div>
 
-            <div style={styles.card}>
+            <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
               <div style={styles.cardHeader}>
                 <span style={styles.cardLabel}>MONITORED ENDPOINTS</span>
                 <div style={{ ...styles.iconBadge, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
@@ -1466,8 +1466,8 @@ const makeStyles = (dm) => ({
   },
   cardGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '16px',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '24px',
   },
   card: {
     background: dm ? '#1e293b' : 'white',

@@ -151,22 +151,22 @@ export default function SystemAuditorPage({ onLogout }) {
         </div>
 
         <div style={styles.cardGrid4}>
-          <div style={{ ...styles.card, background: dm ? '#1e293b' : '#f8fafc', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+          <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce7'}` }}>
             <span style={{ ...styles.cardLabel, color: dm ? '#94a3b8' : '#6b7280' }}>EVENTS (24H)</span>
             <div style={{ ...styles.cardValue, color: '#16a34a' }}>—</div>
             <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>All events logged</div>
           </div>
-          <div style={{ ...styles.card, background: dm ? '#1e293b' : '#f8fafc', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+          <div style={{ ...styles.card, background: dm ? '#451a03' : '#fffbeb', border: `1px solid ${dm ? '#78350f' : '#fef3c7'}` }}>
             <span style={{ ...styles.cardLabel, color: dm ? '#94a3b8' : '#6b7280' }}>ACCESS CHANGES</span>
             <div style={{ ...styles.cardValue, color: '#0ea5e9' }}>—</div>
             <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Role assignments</div>
           </div>
-          <div style={{ ...styles.card, background: dm ? '#1e293b' : '#f8fafc', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+          <div style={{ ...styles.card, background: dm ? '#064e3b' : '#f0fdf4', border: `1px solid ${dm ? '#065f46' : '#dcfce3'}` }}>
             <span style={{ ...styles.cardLabel, color: dm ? '#94a3b8' : '#6b7280' }}>BLOCKED EVENTS</span>
             <div style={{ ...styles.cardValue, color: '#ef4444' }}>—</div>
             <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>Brute-force + scans</div>
           </div>
-          <div style={{ ...styles.card, background: dm ? '#1e293b' : '#f8fafc', border: `1px solid ${dm ? '#334155' : '#e5e7eb'}` }}>
+          <div style={{ ...styles.card, background: dm ? '#083344' : '#ecfeff', border: `1px solid ${dm ? '#164e63' : '#cffafe'}` }}>
             <span style={{ ...styles.cardLabel, color: dm ? '#94a3b8' : '#6b7280' }}>LOG INTEGRITY</span>
             <div style={{ ...styles.cardValue, color: '#16a34a' }}>OK</div>
             <div style={{ fontSize: '13px', color: dm ? '#94a3b8' : '#6b7280' }}>No tampering detected</div>
